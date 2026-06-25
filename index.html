@@ -347,9 +347,9 @@
     </div>
     <div class="row">
       <span class="lbl">⏩ 速度</span>
-      <span class="chip" data-rate="0.8" onclick="setRate(this,0.8)">🐢 慢慢</span>
-      <span class="chip sel" data-rate="1.0" onclick="setRate(this,1.0)">🚶 剛好</span>
-      <span class="chip" data-rate="1.2" onclick="setRate(this,1.2)">🐇 快快</span>
+      <span class="chip" data-rate="0.75" onclick="setRate(this,0.75)">🐢 慢慢</span>
+      <span class="chip sel" data-rate="0.9" onclick="setRate(this,0.9)">🚶 剛好</span>
+      <span class="chip" data-rate="1.1" onclick="setRate(this,1.1)">🐇 快快</span>
     </div>
     <div class="playrow">
       <button class="big save" onclick="saveStory()">⭐ 收藏</button>
@@ -1091,7 +1091,7 @@ const _unlockAudio=(function(){
 
 /* =================== 語音 + 卡拉OK 反白 =================== */
 const synth=window.speechSynthesis;
-let voices=[], voiceList=[], chosenVoice=null, rate=1.0;
+let voices=[], voiceList=[], chosenVoice=null, rate=0.9;
 // 只保留：國語（台灣）、English（普通話／大陸語音一律排除）
 function voiceCat(v){
   const s=v.lang+' '+v.name;
@@ -1127,43 +1127,19 @@ function isInApp(){
   const u=navigator.userAgent||'';
   return /Line\/|FBAN|FBAV|FB_IAB|Instagram|MicroMessenger|; wv\)|musical_ly|TikTok/i.test(u);
 }
-function setTtsWarn(){
-  const w=document.getElementById('ttsWarn');
-  // 手機一律走線上語音，不需要警告
-  if(_isMobile){ w.style.display='none'; return; }
-  w.innerHTML='😅 這個瀏覽器好像沒有中文／英文語音，建議用 <b>Chrome／Edge</b>（電腦）打開喔！';
-  w.style.display='block';
-}
 function loadVoices(){
   if(!synth) return;
   const s=document.getElementById('voiceSel');
-  // 手機一律用線上語音，不需要載入本機語音清單
-  if(_isMobile){
-    s.innerHTML='<option>🔊 線上語音（自動）</option>';
-    document.getElementById('ttsWarn').style.display='none';
-    return;
-  }
-  voices=synth.getVoices();
+  s.innerHTML='<option>🔊 溫暖說故事語音（自動）</option>';
+  document.getElementById('ttsWarn').style.display='none';
+  // 仍載入本機語音清單，供 WebView 備援使用
+  voices=synth.getVoices()||[];
   voiceList=voices.map((v,i)=>({v,i,c:voiceCat(v),nat:isNatural(v)})).filter(x=>x.c);
   const twNamed=voiceList.filter(x=>x.c==='tw' && /國語|臺灣|台灣/.test(x.v.name));
   if(twNamed.length) voiceList=voiceList.filter(x=> x.c!=='tw' || twNamed.includes(x));
   voiceList.sort((a,b)=> CAT_ORDER[a.c]-CAT_ORDER[b.c] || voiceScore(b.v)-voiceScore(a.v));
-  const recIdx=new Set();
-  ['tw','en'].forEach(c=>{ const top=voiceList.find(x=>x.c===c); if(top) recIdx.add(top.i); });
-  if(voiceList.length){
-    s.innerHTML=voiceList.map(x=>`<option value="${x.i}">${recIdx.has(x.i)?'👑 推薦｜':''}${x.nat?'✨ ':''}${CAT_LABEL[x.c]}｜${cleanName(x.v)}${x.nat?'（擬真）':''}</option>`).join('');
-    chosenVoice=voices[voiceList[0].i];
-    s.onchange=e=>chosenVoice=voices[+e.target.value];
-    const hasZh=voiceList.some(x=>x.c==='tw');
-    document.getElementById('ttsWarn').style.display=hasZh?'none':'block';
-  }else if(voices.length){
-    s.innerHTML='<option value="0">（系統預設語音）</option>';
-    chosenVoice=voices[0];
-    setTtsWarn();
-  }else{
-    s.innerHTML='<option>🔊 線上語音（自動）</option>';
-    setTtsWarn();
-  }
+  if(voiceList.length){ chosenVoice=voices[voiceList[0].i]; }
+  else if(voices.length){ chosenVoice=voices[0]; }
 }
 // 依語言自動挑語音：優先「擬真」語音；中文挑國語（台灣）、英文挑 English
 function pickVoiceForLang(lang){
@@ -1171,24 +1147,13 @@ function pickVoiceForLang(lang){
   const c = lang==='en' ? 'en' : 'tw';
   const found = voiceList.find(x=>x.c===c && x.nat) || voiceList.find(x=>x.c===c) || voiceList[0];
   chosenVoice=voices[found.i];
-  document.getElementById('voiceSel').value=found.i;
 }
 if(synth){
   loadVoices();
-  if(!_isMobile){
-    // 桌機：偵測語音清單變動＋輪詢重試
-    synth.onvoiceschanged=loadVoices;
-    let tries=0;
-    const vt=setInterval(()=>{
-      if((synth.getVoices()||[]).length){ loadVoices(); clearInterval(vt); }
-      else if(++tries>50) clearInterval(vt);
-    },300);
-  }
+  synth.onvoiceschanged=loadVoices;
 }else{
-  // 完全沒有 speechSynthesis：手機仍可用線上語音
   const s=document.getElementById('voiceSel');
-  s.innerHTML='<option>🔊 線上語音（自動）</option>';
-  if(!_isMobile) setTtsWarn();
+  s.innerHTML='<option>🔊 溫暖說故事語音（自動）</option>';
 }
 
 function setRate(el,r){ rate=r; document.querySelectorAll('.chip[data-rate]').forEach(c=>c.classList.remove('sel')); el.classList.add('sel'); }
@@ -1235,10 +1200,8 @@ function needsFallback(){
   if(!synth) return true;
   // WebView（LINE/FB/IG）：Google TTS 幾乎一定被擋，直接用原生 speechSynthesis
   if(_isMobile && isInApp()) return false;
-  // 其他手機瀏覽器：用 Google Translate TTS（音質好、穩定）
-  if(_isMobile) return true;
-  const v=synth.getVoices(); if(!v||!v.length) return true;
-  return false;
+  // 所有平台都優先用 Google Translate TTS（音質自然溫暖，適合說故事）
+  return true;
 }
 
 /* ---------- Google Translate TTS 備援（所有瀏覽器都能播 <audio>）---------- */
@@ -1294,7 +1257,7 @@ function _speakFallback(){
       if(!synth){ advance(); return; }
       const u=new SpeechSynthesisUtterance(text);
       u.lang=readLang==='en'?'en-US':'zh-TW';
-      u.rate=rate; u.pitch=1.05;
+      u.rate=rate; u.pitch=1.15;
       u.onstart=()=>{
         startT=0; shownIdx=-1; place(0);
         cancelAnimationFrame(rafId); rafId=requestAnimationFrame(tick);
@@ -1364,7 +1327,7 @@ function _speakChain(){
     if(chosenVoice){ u.voice=chosenVoice; u.lang=chosenVoice.lang; } else u.lang='zh-TW';
     u.rate=rate;
     const base=sentenceStart[i], idx=i, len=readSeq[i].length;
-    u.pitch=1.05;
+    u.pitch=1.15;
     const base0=learnedMs[readLang]||(/^en/i.test(u.lang)?70:240);
     let msPerChar=base0/(rate||1);
     let startT=0, startWall=0, shownIdx=-1, lastBoundary=-1, boundaryCount=0;
