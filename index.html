@@ -348,9 +348,9 @@
     </div>
     <div class="row">
       <span class="lbl">⏩ 速度</span>
-      <span class="chip" data-rate="0.8" onclick="setRate(this,0.8)">🐢 慢慢</span>
-      <span class="chip sel" data-rate="1" onclick="setRate(this,1)">🚶 正常</span>
-      <span class="chip" data-rate="1.2" onclick="setRate(this,1.2)">🐇 快快</span>
+      <span class="chip" data-rate="0.82" onclick="setRate(this,0.82)">🐢 慢慢</span>
+      <span class="chip sel" data-rate="0.92" onclick="setRate(this,0.92)">🚶 剛好</span>
+      <span class="chip" data-rate="1" onclick="setRate(this,1)">🐇 快快</span>
     </div>
     <div class="row" style="flex-wrap:wrap;gap:6px;margin-top:4px;">
       <span class="lbl">🔑 AI語音</span>
@@ -1268,7 +1268,7 @@ const _unlockAudio=(function(){
 
 /* =================== 語音 + 卡拉OK 反白 =================== */
 const synth=window.speechSynthesis;
-let voices=[], voiceList=[], chosenVoice=null, rate=1, _hasNeuralVoice=false;
+let voices=[], voiceList=[], chosenVoice=null, rate=0.92, _hasNeuralVoice=false;
 // 只保留：國語（台灣）、English（普通話／大陸語音一律排除）
 function voiceCat(v){
   const s=v.lang+' '+v.name;
@@ -1453,13 +1453,7 @@ function _azureFetch(text, r, lang){
 let fallbackAudio=null, speakAborted=false;
 function needsFallback(){
   if(!synth) return true;
-  // Azure 語音走 Audio 路徑（與 Google TTS 相同）
-  if(isAzureReady()) return true;
-  // WebView（LINE/FB/IG）：Google TTS 幾乎一定被擋，直接用原生 speechSynthesis
-  if(_isMobile && isInApp()) return false;
-  // Edge 瀏覽器有曉臻等 Neural 擬真語音 → 用原生 speechSynthesis（音質最好）
-  if(_hasNeuralVoice) return false;
-  // 其他瀏覽器 → 用 Google Translate TTS（音質自然溫暖）
+  // 所有平台、所有瀏覽器統一用 Google Translate TTS，確保聽起來一致
   return true;
 }
 
@@ -1489,10 +1483,10 @@ function _speakFallback(){
     wrappers.forEach(w=>w.classList.remove('active'));
     wrappers[idx]&&wrappers[idx].classList.add('active');
     const _useAzure=isAzureReady();
-    audio.playbackRate=1;
+    audio.playbackRate=_useAzure?1:rate;
     let startT=0, shownIdx=-1;
     const msBase=readLang==='en'?70:240;
-    let msPerChar=msBase;
+    let msPerChar=msBase/(audio.playbackRate||1);
     let resolved=false, synthTried=false;
     function advance(){
       if(resolved) return; resolved=true;
@@ -1533,10 +1527,10 @@ function _speakFallback(){
     audio.onplay=()=>{
       startT=0; shownIdx=-1; place(0);
       cancelAnimationFrame(rafId); rafId=requestAnimationFrame(tick);
-      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len;
+      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len/(audio.playbackRate||1);
     };
     audio.onloadedmetadata=()=>{
-      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len;
+      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len/(audio.playbackRate||1);
     };
     audio.onended=advance;
     audio.onerror=()=>{
