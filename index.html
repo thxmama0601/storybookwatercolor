@@ -356,8 +356,7 @@
       <button class="big save" style="background:linear-gradient(90deg,#9b8cff,#7c6cff)" onclick="window.print()">🖨 列印</button>
     </div>
     <div class="warn" id="ttsWarn">😅 這個瀏覽器好像沒有中文／英文語音，建議用 Chrome 或 Edge 打開喔！</div>
-    <div class="hint">唸到哪個字，那個字就會變成紅色～跟著一起唸吧！（第一次按可能要等一下下）<br>
-      💡 想聽<b>更像真人</b>的聲音嗎？用 <b>Microsoft Edge</b> 打開，選單裡有「✨ 擬真」的微軟神經網路語音（免費），語氣最自然喔！</div>
+    <div class="hint" id="voiceHint">唸到哪個字，那個字就會變成紅色～跟著一起唸吧！（第一次按可能要等一下下）</div>
   </div>
 
   <!-- 我的故事書 -->
@@ -1255,7 +1254,7 @@ const _unlockAudio=(function(){
 
 /* =================== 語音 + 卡拉OK 反白 =================== */
 const synth=window.speechSynthesis;
-let voices=[], voiceList=[], chosenVoice=null, rate=0.9;
+let voices=[], voiceList=[], chosenVoice=null, rate=0.9, _hasNeuralVoice=false;
 // 只保留：國語（台灣）、English（普通話／大陸語音一律排除）
 function voiceCat(v){
   const s=v.lang+' '+v.name;
@@ -1294,23 +1293,38 @@ function isInApp(){
 function loadVoices(){
   if(!synth) return;
   const s=document.getElementById('voiceSel');
-  s.innerHTML='<option>🔊 溫暖說故事語音（自動）</option>';
   document.getElementById('ttsWarn').style.display='none';
-  // 仍載入本機語音清單，供 WebView 備援使用
   voices=synth.getVoices()||[];
   voiceList=voices.map((v,i)=>({v,i,c:voiceCat(v),nat:isNatural(v)})).filter(x=>x.c);
   const twNamed=voiceList.filter(x=>x.c==='tw' && /國語|臺灣|台灣/.test(x.v.name));
   if(twNamed.length) voiceList=voiceList.filter(x=> x.c!=='tw' || twNamed.includes(x));
   voiceList.sort((a,b)=> CAT_ORDER[a.c]-CAT_ORDER[b.c] || voiceScore(b.v)-voiceScore(a.v));
-  if(voiceList.length){ chosenVoice=voices[voiceList[0].i]; }
-  else if(voices.length){ chosenVoice=voices[0]; }
+  // 偵測曉臻／曉雨等 Neural 擬真語音（Edge 瀏覽器內建）
+  const neuralTw=voiceList.find(x=>x.c==='tw' && /HsiaoChen|HsiaoYu|曉臻|曉雨/i.test(x.v.name) && x.nat);
+  _hasNeuralVoice=!!neuralTw;
+  const hint=document.getElementById('voiceHint');
+  if(neuralTw){
+    chosenVoice=voices[neuralTw.i];
+    const vn=cleanName(voices[neuralTw.i]);
+    s.innerHTML=`<option>✨ ${vn}（擬真 AI 語音）</option>`;
+    if(hint) hint.innerHTML='唸到哪個字，那個字就會變成紅色～跟著一起唸吧！（第一次按可能要等一下下）<br>✨ 已啟用 <b>曉臻擬真語音</b>，最自然的說故事聲音！';
+  }else if(voiceList.length){
+    chosenVoice=voices[voiceList[0].i];
+    s.innerHTML='<option>🔊 溫暖說故事語音（自動）</option>';
+    if(hint&&!_isMobile) hint.innerHTML='唸到哪個字，那個字就會變成紅色～跟著一起唸吧！（第一次按可能要等一下下）<br>💡 想聽<b>更像真人</b>的聲音？用 <b>Microsoft Edge</b> 開啟即可自動使用「曉臻」AI 擬真語音！';
+  }else{
+    if(voices.length) chosenVoice=voices[0];
+    s.innerHTML='<option>🔊 溫暖說故事語音（自動）</option>';
+  }
 }
-// 依語言自動挑語音：優先「擬真」語音；中文挑國語（台灣）、英文挑 English
 function pickVoiceForLang(lang){
   if(!voiceList.length) return;
   const c = lang==='en' ? 'en' : 'tw';
-  const found = voiceList.find(x=>x.c===c && x.nat) || voiceList.find(x=>x.c===c) || voiceList[0];
+  // 優先曉臻/曉雨 Neural → 其他擬真 → 任意同語言
+  const neural = voiceList.find(x=>x.c===c && /HsiaoChen|HsiaoYu|曉臻|曉雨/i.test(x.v.name) && x.nat);
+  const found = neural || voiceList.find(x=>x.c===c && x.nat) || voiceList.find(x=>x.c===c) || voiceList[0];
   chosenVoice=voices[found.i];
+  _hasNeuralVoice = !!(neural || voiceList.find(x=>x.c==='tw' && /HsiaoChen|HsiaoYu|曉臻|曉雨/i.test(x.v.name) && x.nat));
 }
 if(synth){
   loadVoices();
@@ -1364,7 +1378,9 @@ function needsFallback(){
   if(!synth) return true;
   // WebView（LINE/FB/IG）：Google TTS 幾乎一定被擋，直接用原生 speechSynthesis
   if(_isMobile && isInApp()) return false;
-  // 所有平台都優先用 Google Translate TTS（音質自然溫暖，適合說故事）
+  // Edge 瀏覽器有曉臻等 Neural 擬真語音 → 用原生 speechSynthesis（音質最好）
+  if(_hasNeuralVoice) return false;
+  // 其他瀏覽器 → 用 Google Translate TTS（音質自然溫暖）
   return true;
 }
 
