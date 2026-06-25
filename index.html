@@ -258,38 +258,6 @@
   .opt-fb{font-size:30px;line-height:1.05;}
   .opt:has(.opt-img) .opt-fb{display:none;}
 
-  /* 試玩次數提示 */
-  .trial-badge{text-align:center;margin:0 0 12px;font-size:20px;font-weight:800;
-    color:#ffd86b;text-shadow:0 2px 8px rgba(0,0,0,.6),0 0 20px rgba(255,200,60,.3);
-    letter-spacing:.5px;}
-  .trial-badge.unlocked{color:#3ddc84;}
-
-  /* 付費牆 Overlay */
-  .paywall{display:none;position:fixed;inset:0;z-index:100;
-    background:rgba(14,6,32,.85);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-    align-items:center;justify-content:center;padding:18px;}
-  .paywall.show{display:flex;}
-  .paywall-card{background:linear-gradient(180deg,#f8efd9,#f1e4c8);border-radius:26px;
-    padding:28px 24px 22px;max-width:400px;width:100%;position:relative;
-    box-shadow:0 18px 44px rgba(60,38,15,.35);animation:pop .4s cubic-bezier(.2,.9,.3,1.3);}
-  .paywall-close{position:absolute;top:10px;right:14px;background:none;border:none;
-    font-size:22px;cursor:pointer;color:var(--soft);line-height:1;}
-  .paywall-title{text-align:center;font-size:22px;font-weight:800;color:var(--rose-d);margin:0 0 10px;}
-  .paywall-desc{text-align:center;font-size:15px;color:var(--ink);margin:0 0 16px;line-height:1.6;}
-  .paywall-contact{background:linear-gradient(90deg,#fff6d6,#ffe9f2);border-radius:14px;
-    padding:14px 16px;margin:0 0 16px;font-size:14px;color:#c46a00;text-align:center;
-    font-weight:700;line-height:1.7;}
-  .paywall-input-row{display:flex;gap:8px;margin:0 0 8px;}
-  .paywall-input-row input{flex:1;font-family:inherit;font-size:16px;padding:12px 14px;
-    border-radius:14px;border:2px solid var(--line);background:var(--cream);color:var(--ink);
-    text-align:center;letter-spacing:1px;font-weight:700;}
-  .paywall-input-row input:focus{outline:none;border-color:var(--rose);}
-  .paywall-input-row button{border:none;border-radius:14px;padding:12px 20px;
-    font-family:inherit;font-size:16px;font-weight:800;color:#fff;cursor:pointer;
-    background:linear-gradient(90deg,#3ddc84,#23b56a);white-space:nowrap;}
-  .paywall-err{display:none;text-align:center;font-size:13px;color:#d4516b;
-    font-weight:700;margin:4px 0 0;}
-  .paywall-err.show{display:block;animation:pop .3s ease;}
 
   /* 巫師裝飾（左側） */
   .deco-wizard{position:fixed;bottom:0;left:0;z-index:0;pointer-events:none;
@@ -343,7 +311,6 @@
 
   <div id="groups"></div>
 
-  <div class="trial-badge" id="trialBadge"></div>
   <div class="controls">
     <button class="big gen img-btn" id="genBtn" onclick="generate()">
       <img src="assets/theme/btn-main.png" alt="變出一個故事！"
@@ -410,65 +377,8 @@
 </div>
 
 <!-- 付費牆 Overlay -->
-<div class="paywall" id="paywall">
-  <div class="paywall-card">
-    <button class="paywall-close" onclick="closePaywall()">&times;</button>
-    <div class="paywall-title">免費故事用完囉！</div>
-    <div class="paywall-desc">你已經聽了 5 個精彩故事 🎉<br>解鎖完整版，可以無限產生故事喔！</div>
-    <div class="paywall-contact">總共有 4,096 種不同的故事等你探索！<br>只要 400 元即可解鎖全部玩法！<br><br>匯款資料 xxxxxxx<br>匯款完請寄到 leoneramy@gmail.com<br>告知後五碼，即可開通無限暢玩功能</div>
-    <div class="paywall-input-row">
-      <input type="text" id="unlockInput" placeholder="輸入解鎖碼" autocomplete="off">
-      <button onclick="tryUnlock()">🔓 解鎖</button>
-    </div>
-    <div class="paywall-err" id="unlockErr">解鎖碼不正確，請再試一次</div>
-  </div>
-</div>
 
 <script>
-/* =================== 試玩 / 付費牆 =================== */
-const FREE_LIMIT=5;
-const UNLOCK_CODE='MAGIC-STORY';
-function getStoryCount(){ return parseInt(localStorage.getItem('storyCount')||'0',10); }
-function addStoryCount(){ localStorage.setItem('storyCount', getStoryCount()+1); updateTrialBadge(); }
-function isUnlocked(){ return localStorage.getItem('storyUnlocked')==='1'; }
-function updateTrialBadge(){
-  const el=document.getElementById('trialBadge'); if(!el) return;
-  if(isUnlocked()){
-    el.textContent='✨ 已解鎖完整版'; el.className='trial-badge unlocked';
-  }else{
-    const left=Math.max(0, FREE_LIMIT-getStoryCount());
-    el.textContent='✨ 免費試玩：剩餘 '+left+' 次';
-    el.className='trial-badge'+(left===0?' used':'');
-  }
-}
-function checkTrialOrPay(){
-  if(isUnlocked()) return true;
-  if(getStoryCount()<FREE_LIMIT) return true;
-  showPaywall(); return false;
-}
-function showPaywall(){
-  document.getElementById('unlockErr').classList.remove('show');
-  document.getElementById('unlockInput').value='';
-  document.getElementById('paywall').classList.add('show');
-}
-function closePaywall(){ document.getElementById('paywall').classList.remove('show'); }
-function tryUnlock(){
-  const input=document.getElementById('unlockInput').value.trim().toUpperCase();
-  if(input===UNLOCK_CODE){
-    localStorage.setItem('storyUnlocked','1');
-    closePaywall();
-    updateTrialBadge();
-    generate();
-  }else{
-    document.getElementById('unlockErr').classList.add('show');
-    document.getElementById('unlockInput').focus();
-  }
-}
-// Enter 鍵送出解鎖碼
-document.addEventListener('DOMContentLoaded',()=>{
-  const inp=document.getElementById('unlockInput');
-  if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter') tryUnlock(); });
-});
 
 /* =================== 選項 =================== */
 const GROUPS = [
@@ -884,7 +794,6 @@ function renderStory(plan, lang){
 let readSeq=[], sentenceStart=[], chars=[], wrappers=[], readLang='zh';
 let currentPlan=null, currentLang='zh';
 function generate(){
-  if(!checkTrialOrPay()) return;
   _unlockAudio();
   GROUPS.forEach(g=>{ if(!sel[g.key]) sel[g.key]=rnd(g.opts).id; });
   document.querySelectorAll('.gen').forEach(b=>b.classList.remove('glow'));
@@ -893,7 +802,6 @@ function generate(){
   currentPlan=buildPlan();
   currentLang='zh';
   showStory(renderStory(currentPlan,'zh'));
-  addStoryCount();
 }
 function randomizeAll(){ GROUPS.forEach(g=> sel[g.key]=rnd(g.opts).id); renderOpts(); generate(); }
 
@@ -958,24 +866,6 @@ function showStory(story){
 
 // 點 LOGO：回到首頁最上方（選主角的區塊）
 function goHome(){ window.scrollTo({top:0,behavior:'smooth'}); }
-// 隱藏管理員功能：連按 Logo 5 下重置試玩紀錄
-let logoTaps=0, logoTimer=null;
-document.addEventListener('DOMContentLoaded',()=>{
-  const logo=document.getElementById('logoWrap');
-  if(!logo) return;
-  logo.addEventListener('click',()=>{
-    logoTaps++;
-    clearTimeout(logoTimer);
-    logoTimer=setTimeout(()=>logoTaps=0,2000);
-    if(logoTaps>=5){
-      logoTaps=0;
-      localStorage.removeItem('storyCount');
-      localStorage.removeItem('storyUnlocked');
-      updateTrialBadge();
-      alert('已重置試玩紀錄！');
-    }
-  });
-});
 // 右側抽屜：展開／收合
 function toggleResetDrawer(){ document.getElementById('resetDrawer').classList.toggle('open'); }
 // 重設故事：收起故事，清空選擇，跳回一開始選主角的畫面
@@ -1611,7 +1501,6 @@ renderGroups();
 renderShelf();
 updateMobileBar();
 setupBarAutoHide();
-updateTrialBadge();
 </script>
 </body>
 </html>
