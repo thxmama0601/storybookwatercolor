@@ -701,6 +701,45 @@ const FRIENDS = [
   {e:'🐻',name:'胖胖熊',give:'用大大的手掌拍拍他的肩膀打氣', nameEn:`Chubby the Bear`, giveEn:`gave a big, warm pat on the shoulder`},
   {e:'🐦',name:'歌聲鳥',give:'唱了一首加油歌，把煩惱都唱跑了', nameEn:`Chirpy the Bird`, giveEn:`sang a cheer-up song that chased the worries away`},
 ];
+// 角色的自然棲息地（用來判斷角色×地點是否合理）
+const CHAR_HABITAT = {
+  princess:['castle','forest','snow','cloud','magic','candy'],
+  prince:['castle','forest','snow','cloud','magic'],
+  girl:['forest','castle','candy','cloud','snow','magic'],
+  beggar:['forest','castle','candy','snow'],
+  animal:['forest','candy','cloud'],
+  robot:['space','castle','magic'],
+  dino:['forest','castle','snow'],
+  wizard:['magic','castle','forest'],
+  astronaut:['space','cloud'],
+  mermaid:['sea','cloud'],
+  superhero:['castle','space','cloud'],
+  fairy:['forest','magic','cloud','candy'],
+  chef:['candy','castle','cloud'],
+  scientist:['magic','space','castle'],
+  insect:['forest','candy','cloud'],
+};
+// 不搭配時的「冒險來到」開場（角色不住在那裡，而是旅行到那裡）
+const OPENS_ADV = {
+  zh:[
+    (n,h,w)=>`有一天，${n}收到一封神祕的信，邀請他到${w}去冒險。他${h}，二話不說就出發了！`,
+    (n,h,w)=>`${n}，${h}。一陣魔法風，把他帶到了${w}。`,
+    (n,h,w)=>`你猜怎麼了？${n}迷路了！走著走著，竟然來到了${w}。他${h}。`,
+    (n,h,w)=>`${n}做了一個夢，醒來的時候發現自己在${w}！他${h}，覺得好神奇。`,
+    (n,h,w)=>`${n}，${h}，第一次來到${w}，覺得好新奇好新奇。`,
+    (n,h,w)=>`有一天，${n}跟著一隻蝴蝶，不知不覺來到了${w}。他${h}。`,
+    (n,h,w)=>`${n}打開了一扇魔法門，門的另一邊竟然是${w}！他${h}，興奮極了。`,
+  ],
+  en:[
+    (n,h,w)=>`One day, ${n} received a mysterious letter inviting an adventure in ${w}. ${h}, off they went!`,
+    (n,h,w)=>`${n}, who was ${h}. A magical wind carried them all the way to ${w}.`,
+    (n,h,w)=>`Guess what? ${n} got lost! And ended up in ${w}. Always ${h}.`,
+    (n,h,w)=>`${n} had a dream, and woke up in ${w}! ${h}, it felt amazing.`,
+    (n,h,w)=>`${n}, who was ${h}, visited ${w} for the very first time — everything felt brand new.`,
+    (n,h,w)=>`One day, ${n} followed a butterfly and ended up in ${w}. Always ${h}.`,
+    (n,h,w)=>`${n} opened a magic door, and on the other side was ${w}! ${h}, so excited.`,
+  ],
+};
 // 開頭句型（中英各 7 種，索引對應）
 const OPENS = {
   zh:[
@@ -898,9 +937,11 @@ const RESOLVES = {
 function buildPlan(){
   const arc=ARC[sel.attr], l=LOC[sel.loc];
   const numFriends = 2 + Math.floor(Math.random()*3); // 2~4 位朋友
+  const natural = (CHAR_HABITAT[sel.char]||[]).includes(sel.loc);
   return {
-    char:sel.char, attr:sel.attr, loc:sel.loc, act:sel.act,
-    openI:pick(OPENS.zh), whereI:pick(l.where), senseI:pick(l.sense), openerI:pick(ACT[sel.act].opener),
+    char:sel.char, attr:sel.attr, loc:sel.loc, act:sel.act, natural,
+    openI:natural ? pick(OPENS.zh) : pick(OPENS_ADV.zh),
+    whereI:pick(l.where), senseI:pick(l.sense), openerI:pick(ACT[sel.act].opener),
     thingI:pick(l.thing), problemI:pick(arc.problem), tryI:pick(arc.try),
     developI:pick(DEVELOP.zh),
     twistI:pick(TWISTS.zh),
@@ -921,7 +962,8 @@ function renderStory(plan, lang){
   if(lang==='en'){
     const name=c.nameEn, who=c.shortEn, where=l.whereEn[plan.whereI];
     // 【起】開場
-    P.push(OPENS.en[plan.openI](name, c.hintEn, where));
+    const opensEn=plan.natural?OPENS.en:OPENS_ADV.en;
+    P.push(opensEn[plan.openI](name, c.hintEn, where));
     P.push(`${l.senseEn[plan.senseI]}. That day, ${who} ${a.clauseEn}. ${a.openerEn[plan.openerI]}`);
     // 【承】發展
     P.push(`Just then, ${l.thingEn[plan.thingI]} appeared. It turned out that ${who} ${arc.problemEn[plan.problemI]}.`);
@@ -944,7 +986,8 @@ function renderStory(plan, lang){
   } else {
     const name=c.name, where=l.where[plan.whereI];
     // 【起】開場
-    P.push(OPENS.zh[plan.openI](name, c.hint, where));
+    const opensZh=plan.natural?OPENS.zh:OPENS_ADV.zh;
+    P.push(opensZh[plan.openI](name, c.hint, where));
     P.push(`${l.sense[plan.senseI]}。這一天，${name}${a.clause}，${a.opener[plan.openerI]}`);
     // 【承】發展
     P.push(`這時候，${l.thing[plan.thingI]}出現了，原來${name}${arc.problem[plan.problemI]}。`);
