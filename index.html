@@ -1288,16 +1288,16 @@ const CAT_LABEL={tw:'🇹🇼 國語（台灣）',en:'🇬🇧 English'};
 const CAT_ORDER={tw:0,en:1};
 function cleanName(v){ return v.name.replace(/Microsoft|Google|Online|Natural|\(.*?\)|-/g,'').trim()||v.lang; }
 // 擬真（神經網路）語音：名字含 Natural / Neural / Online，多半在 Edge 出現
-function isNatural(v){ return /Natural|Neural|Online/i.test(v.name); }
+function isNatural(v){ return /Natural|Neural|Online|^Google/i.test(v.name); }
 // 語音評分：分數越高音質越好、越接近擬真女聲，用來排序＋挑預設
 function voiceScore(v){
   const n=v.name; let s=0;
   if(/Neural|Natural/i.test(n)) s+=100;          // 神經網路擬真（最自然）
   else if(/Online/i.test(n))   s+=80;            // 線上擬真
   if(/HsiaoChen|HsiaoYu|曉臻|曉雨/i.test(n)) s+=40; // 微軟台灣神經女聲
-  else if(/Yating|雅婷/i.test(n))            s+=25; // 其他台灣女聲
+  if(/^Google/i.test(n)) s+=90;                  // Chrome Google 語音（自然流暢）
+  else if(/Yating|雅婷/i.test(n))            s+=25;
   else if(/Hanhan|Zhiwei|曉維/i.test(n))      s+=15;
-  if(/Google/i.test(n)) s+=10;
   return s;
 }
 const _isMobile=/iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
@@ -1315,16 +1315,18 @@ function loadVoices(){
   const twNamed=voiceList.filter(x=>x.c==='tw' && /國語|臺灣|台灣/.test(x.v.name));
   if(twNamed.length) voiceList=voiceList.filter(x=> x.c!=='tw' || twNamed.includes(x) || x.nat);
   voiceList.sort((a,b)=> CAT_ORDER[a.c]-CAT_ORDER[b.c] || voiceScore(b.v)-voiceScore(a.v));
-  // 偵測曉臻／曉雨等 Neural 擬真語音（Edge 瀏覽器內建）
+  // 偵測高品質語音：曉臻（Edge）、Google 國語（Chrome）等
   const neuralTw=voiceList.find(x=>x.c==='tw' && /HsiaoChen|HsiaoYu|曉臻|曉雨/i.test(x.v.name) && x.nat)
-    || voiceList.find(x=>x.c==='tw' && x.nat && /zh[-_]?TW|Taiwan/i.test(x.v.lang+' '+x.v.name));
+    || voiceList.find(x=>x.c==='tw' && x.nat && /zh[-_]?TW|Taiwan/i.test(x.v.lang+' '+x.v.name))
+    || voiceList.find(x=>x.c==='tw' && /^Google/i.test(x.v.name));
   _hasNeuralVoice=!!neuralTw;
   const hint=document.getElementById('voiceHint');
   if(neuralTw){
     chosenVoice=voices[neuralTw.i];
     const vn=cleanName(voices[neuralTw.i]);
-    s.innerHTML=`<option>✨ ${vn}（擬真 AI 語音）</option>`;
-    if(hint) hint.innerHTML='唸到哪個字，那個字就會變成紅色～跟著一起唸吧！（第一次按可能要等一下下）<br>✨ 已啟用 <b>曉臻擬真語音</b>，最自然的說故事聲音！';
+    const isGoogle=/^Google/i.test(voices[neuralTw.i].name);
+    s.innerHTML=`<option>✨ ${isGoogle?'Google 國語':vn}（自然語音）</option>`;
+    if(hint) hint.innerHTML='唸到哪個字，那個字就會變成紅色～跟著一起唸吧！（第一次按可能要等一下下）<br>✨ 已啟用 <b>'+(isGoogle?'Google 自然語音':'曉臻擬真語音')+'</b>！';
   }else if(voiceList.length){
     chosenVoice=voices[voiceList[0].i];
     s.innerHTML='<option>🔊 溫暖說故事語音（自動）</option>';
@@ -1337,11 +1339,11 @@ function loadVoices(){
 function pickVoiceForLang(lang){
   if(!voiceList.length) return;
   const c = lang==='en' ? 'en' : 'tw';
-  // 優先曉臻/曉雨 Neural → 其他擬真 → 任意同語言
-  const neural = voiceList.find(x=>x.c===c && /HsiaoChen|HsiaoYu|曉臻|曉雨/i.test(x.v.name) && x.nat);
+  const neural = voiceList.find(x=>x.c===c && /HsiaoChen|HsiaoYu|曉臻|曉雨/i.test(x.v.name) && x.nat)
+    || voiceList.find(x=>x.c===c && /^Google/i.test(x.v.name));
   const found = neural || voiceList.find(x=>x.c===c && x.nat) || voiceList.find(x=>x.c===c) || voiceList[0];
   chosenVoice=voices[found.i];
-  _hasNeuralVoice = !!(neural || voiceList.find(x=>x.c==='tw' && /HsiaoChen|HsiaoYu|曉臻|曉雨/i.test(x.v.name) && x.nat));
+  _hasNeuralVoice = !!(neural || voiceList.find(x=>x.c==='tw' && x.nat));
 }
 if(synth){
   loadVoices();
