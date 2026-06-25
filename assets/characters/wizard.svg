@@ -1,0 +1,22 @@
+<svg viewBox="0 0 160 300" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="80" cy="288" rx="40" ry="8" fill="#000" opacity=".12"/>
+  <!-- 長袍 -->
+  <path d="M80 142 L120 282 Q80 292 40 282 Z" fill="#6a5acd"/>
+  <g fill="#ffd34d"><polygon points="70,210 73,217 80,217 74,222 76,229 70,225 64,229 66,222 60,217 67,217"/>
+     <circle cx="95" cy="246" r="3"/><circle cx="64" cy="252" r="3"/></g>
+  <path d="M62 116 Q80 108 98 116 L102 150 Q80 158 58 150 Z" fill="#7a6ad8"/>
+  <path d="M62 120 Q42 142 48 170" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <!-- 魔杖 -->
+  <line x1="112" y1="172" x2="100" y2="118" stroke="#a9743f" stroke-width="4" stroke-linecap="round"/>
+  <g fill="#ffd34d"><polygon points="100,108 104,118 114,118 106,124 109,134 100,128 91,134 94,124 86,118 96,118"/></g>
+  <path d="M98 118 Q116 140 112 168" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <circle cx="80" cy="78" r="28" fill="#ffe0c2"/>
+  <circle cx="71" cy="80" r="3.2" fill="#3a2a1a"/><circle cx="89" cy="80" r="3.2" fill="#3a2a1a"/>
+  <path d="M74 90 Q80 95 86 90" stroke="#d4516b" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- 鬍子 -->
+  <path d="M66 92 Q80 110 94 92 Q80 100 66 92 Z" fill="#e8e8f0"/>
+  <!-- 巫師帽 -->
+  <polygon points="80,8 52,60 108,60" fill="#5b4bbf"/>
+  <ellipse cx="80" cy="60" rx="34" ry="8" fill="#4a3aa8"/>
+  <g fill="#ffd34d"><polygon points="80,28 83,36 91,36 84,41 87,49 80,44 73,49 76,41 69,36 77,36"/></g>
+</svg>

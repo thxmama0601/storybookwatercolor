@@ -1,0 +1,17 @@
+<svg viewBox="0 0 160 300" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="80" cy="288" rx="40" ry="8" fill="#000" opacity=".12"/>
+  <!-- 腿 -->
+  <rect x="64" y="214" width="14" height="66" rx="6" fill="#5a6273"/><rect x="82" y="214" width="14" height="66" rx="6" fill="#5a6273"/>
+  <!-- 圍裙身體 -->
+  <path d="M60 116 Q80 108 100 116 L104 220 Q80 230 56 220 Z" fill="#ffffff" stroke="#e6e6ee" stroke-width="2"/>
+  <rect x="66" y="150" width="28" height="56" rx="6" fill="#fff3e0" stroke="#e8d6b8" stroke-width="2"/>
+  <path d="M60 118 Q40 140 46 168" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <path d="M100 118 Q120 140 114 168" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <circle cx="80" cy="80" r="28" fill="#ffe0c2"/>
+  <circle cx="71" cy="82" r="3.2" fill="#3a2a1a"/><circle cx="89" cy="82" r="3.2" fill="#3a2a1a"/>
+  <circle cx="63" cy="90" r="4" fill="#ff9db5" opacity=".7"/><circle cx="97" cy="90" r="4" fill="#ff9db5" opacity=".7"/>
+  <path d="M74 94 Q80 99 86 94" stroke="#d4516b" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- 廚師帽 -->
+  <rect x="58" y="50" width="44" height="14" rx="3" fill="#ffffff" stroke="#e6e6ee" stroke-width="2"/>
+  <ellipse cx="62" cy="42" rx="13" ry="15" fill="#ffffff"/><ellipse cx="80" cy="36" rx="16" ry="18" fill="#ffffff"/><ellipse cx="98" cy="42" rx="13" ry="15" fill="#ffffff"/>
+</svg>

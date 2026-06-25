@@ -1,0 +1,43 @@
+魔法故事屋 — 開發說明（帶到辦公室繼續製作）
+=================================================
+
+【目前進度／最近修正（2026-06-15）】
+  ‧ 手機唸故事修正：語音改成重試載入、偵測 App 內建瀏覽器(LINE/FB/IG)會提示改用
+    Safari/Chrome；點「開始唸」時補抓語音(iOS)；抓不到指定語音時退用系統預設。
+  ‧ 英文卡拉OK：改成「整個單字一起跳」，不再一個字母一個字母跳（中文維持逐字）。
+  ‧ 反白與聲音同步：跳字以瀏覽器 boundary 事件(實際唸到的字)為準、不超前，
+    並用每句實際時長自動學習語速。→ 反白會緊貼著唸出來的聲音。
+  ‧ 以上都已 commit 並 push 到 GitHub（最新 commit 在 main）。
+
+【最快：直接開來看／改】
+  ‧ 用瀏覽器（建議 Chrome 或 Edge）直接打開 index.html 即可使用。
+  ‧ 想改內容就用編輯器（VS Code 等）打開 index.html 編輯，存檔後重新整理瀏覽器看效果。
+
+【想要「更像真人」的微軟神經語音（選用）】
+  需要 Node.js。在這個資料夾開終端機：
+    ‧ 若沒有 node_modules 資料夾（例如從 GitHub 下載的版本）先跑一次：  npm install
+    ‧ 然後啟動：  node _serve.js
+    ‧ 瀏覽器開：  http://localhost:8000
+  （離線備份 zip 已內含 node_modules，可直接 node _serve.js）
+
+【放自訂背景底圖】
+  把圖片放到：assets\theme\background.png（或 .jpg）
+  沒放圖會自動用內建的褐色魔法書皮背景。
+  角色／背景示意圖在：assets\characters\、assets\backgrounds\
+  （.png 優先，沒有才用 .svg）
+
+【版本控制（已含 .git 紀錄）】
+  本專案的線上版／遠端在 GitHub：
+      https://github.com/thxmama0601/storybook
+  線上網站（GitHub Pages）：
+      https://thxmama0601.github.io/storybook/
+  在辦公室改好後若要更新線上：git add . → git commit → git push
+  （需先設定好該電腦的 Git 帳號／權限）
+
+【資料夾說明】
+  index.html      主程式（整個 App 都在這裡）
+  preview.html    角色×背景預覽頁
+  _serve.js       本機語音伺服器（微軟 edge-tts）
+  assets\         角色、背景、底圖
+  node_modules\   _serve.js 用到的套件（離線可用）
+  .git\           版本紀錄

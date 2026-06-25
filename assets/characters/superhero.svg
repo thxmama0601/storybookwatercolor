@@ -1,0 +1,20 @@
+<svg viewBox="0 0 160 300" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="80" cy="288" rx="40" ry="8" fill="#000" opacity=".12"/>
+  <!-- 披風 -->
+  <path d="M58 116 L36 250 L80 236 L124 250 L102 116 Z" fill="#e0566f"/>
+  <!-- 腿 -->
+  <rect x="64" y="200" width="14" height="80" rx="7" fill="#3a6ad8"/><rect x="82" y="200" width="14" height="80" rx="7" fill="#3a6ad8"/>
+  <rect x="60" y="272" width="20" height="12" rx="4" fill="#e0566f"/><rect x="80" y="272" width="20" height="12" rx="4" fill="#e0566f"/>
+  <!-- 身體 -->
+  <path d="M60 112 Q80 104 100 112 L104 204 Q80 214 56 204 Z" fill="#3a8ae0"/>
+  <!-- 胸口星星 -->
+  <polygon points="80,140 85,154 100,154 88,163 92,178 80,169 68,178 72,163 60,154 75,154" fill="#ffd34d"/>
+  <path d="M60 118 Q40 140 46 168" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <path d="M100 118 Q120 140 114 168" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <circle cx="80" cy="74" r="30" fill="#ffe0c2"/>
+  <path d="M50 66 Q58 44 80 44 Q102 44 110 66 Q98 56 80 56 Q62 56 50 66 Z" fill="#3a2a18"/>
+  <!-- 眼罩 -->
+  <path d="M52 70 Q80 60 108 70 L104 82 Q80 74 56 82 Z" fill="#e0566f"/>
+  <circle cx="70" cy="76" r="3" fill="#fff"/><circle cx="90" cy="76" r="3" fill="#fff"/>
+  <path d="M74 90 Q80 95 86 90" stroke="#d4516b" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,19 @@
+<svg viewBox="0 0 160 300" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="80" cy="288" rx="40" ry="8" fill="#000" opacity=".12"/>
+  <!-- 披風 -->
+  <path d="M58 116 L40 270 L80 256 L120 270 L102 116 Z" fill="#5b8df0"/>
+  <!-- 褲腿 -->
+  <rect x="66" y="210" width="12" height="70" rx="5" fill="#3a4a6a"/><rect x="82" y="210" width="12" height="70" rx="5" fill="#3a4a6a"/>
+  <!-- 上衣 -->
+  <path d="M62 112 Q80 104 98 112 L102 200 Q80 210 58 200 Z" fill="#ffd34d"/>
+  <line x1="80" y1="118" x2="80" y2="196" stroke="#e0a800" stroke-width="2"/>
+  <path d="M62 118 Q42 140 48 168" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <path d="M98 118 Q118 140 112 168" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <circle cx="80" cy="74" r="30" fill="#ffe0c2"/>
+  <path d="M50 66 Q58 44 80 44 Q102 44 110 66 Q98 56 80 56 Q62 56 50 66 Z" fill="#3a2a18"/>
+  <circle cx="70" cy="76" r="3.4" fill="#3a2a1a"/><circle cx="90" cy="76" r="3.4" fill="#3a2a1a"/>
+  <path d="M74 88 Q80 93 86 88" stroke="#d4516b" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <!-- 皇冠 -->
+  <polygon points="58,44 60,28 70,40 80,24 90,40 100,28 102,44" fill="#ffd34d"/>
+  <circle cx="80" cy="30" r="3" fill="#5b8df0"/>
+</svg>

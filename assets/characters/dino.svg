@@ -1,0 +1,18 @@
+<svg viewBox="0 0 160 300" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="80" cy="288" rx="44" ry="8" fill="#000" opacity=".12"/>
+  <!-- 尾巴 -->
+  <path d="M116 240 Q150 230 150 200 Q138 224 112 220 Z" fill="#5fc486"/>
+  <!-- 身體 -->
+  <ellipse cx="80" cy="200" rx="46" ry="56" fill="#6fce95" stroke="#54b87c" stroke-width="2"/>
+  <ellipse cx="80" cy="214" rx="28" ry="38" fill="#cdeecb"/>
+  <!-- 腳 -->
+  <ellipse cx="60" cy="272" rx="15" ry="10" fill="#5fc486"/><ellipse cx="100" cy="272" rx="15" ry="10" fill="#5fc486"/>
+  <!-- 背刺 -->
+  <g fill="#3a9d63"><polygon points="80,100 74,118 86,118"/><polygon points="100,118 94,134 108,132"/><polygon points="60,118 54,132 66,134"/></g>
+  <!-- 頭 -->
+  <circle cx="80" cy="118" r="38" fill="#6fce95" stroke="#54b87c" stroke-width="2"/>
+  <circle cx="68" cy="112" r="5" fill="#3a2a1a"/><circle cx="92" cy="112" r="5" fill="#3a2a1a"/>
+  <circle cx="68" cy="111" r="1.8" fill="#fff"/><circle cx="92" cy="111" r="1.8" fill="#fff"/>
+  <circle cx="58" cy="124" r="5" fill="#9be0b0" opacity=".8"/><circle cx="102" cy="124" r="5" fill="#9be0b0" opacity=".8"/>
+  <path d="M70 130 Q80 140 90 130" stroke="#3a8a5a" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+</svg>

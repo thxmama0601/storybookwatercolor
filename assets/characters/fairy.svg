@@ -1,0 +1,19 @@
+<svg viewBox="0 0 160 300" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="80" cy="288" rx="38" ry="8" fill="#000" opacity=".12"/>
+  <!-- 翅膀 -->
+  <g opacity=".75"><ellipse cx="48" cy="150" rx="22" ry="34" fill="#bdeaff"/><ellipse cx="112" cy="150" rx="22" ry="34" fill="#bdeaff"/>
+     <ellipse cx="52" cy="196" rx="16" ry="24" fill="#d8c4ff"/><ellipse cx="108" cy="196" rx="16" ry="24" fill="#d8c4ff"/></g>
+  <!-- 裙子 -->
+  <path d="M80 150 L112 256 Q80 268 48 256 Z" fill="#9be0c0"/>
+  <path d="M80 150 L98 256 Q80 262 62 256 Z" fill="#bfeed8"/>
+  <path d="M64 112 Q80 104 96 112 L100 150 Q80 158 60 150 Z" fill="#7fd0c0"/>
+  <path d="M64 118 Q46 138 52 164" stroke="#ffd9b8" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M96 118 Q114 138 108 164" stroke="#ffd9b8" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <circle cx="80" cy="76" r="28" fill="#ffe0c2"/>
+  <path d="M52 70 Q60 46 80 46 Q100 46 108 70 Q96 58 80 58 Q64 58 52 70 Z" fill="#caa05a"/>
+  <circle cx="71" cy="78" r="3.2" fill="#3a2a1a"/><circle cx="89" cy="78" r="3.2" fill="#3a2a1a"/>
+  <circle cx="63" cy="86" r="4" fill="#ff9db5" opacity=".7"/><circle cx="97" cy="86" r="4" fill="#ff9db5" opacity=".7"/>
+  <path d="M74 90 Q80 95 86 90" stroke="#d4516b" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- 魔法光點 -->
+  <g fill="#fff3a0"><circle cx="118" cy="120" r="3"/><circle cx="40" cy="110" r="2.5"/><circle cx="126" cy="150" r="2"/></g>
+</svg>

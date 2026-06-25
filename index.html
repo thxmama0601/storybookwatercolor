@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌙 魔法故事屋</title>
+<script>
+// WebView 偵測＋自動跳轉 Chrome（放在最前面，頁面還沒渲染就執行）
+(function(){
+  var ua=navigator.userAgent||'';
+  var wv=/Line\/|FBAN|FBAV|FB_IAB|Instagram|MicroMessenger|; wv\)|musical_ly|TikTok/i.test(ua);
+  var mob=/iPhone|iPad|iPod|Android|Mobile/i.test(ua);
+  if(!mob||!wv) return;
+  if(sessionStorage.getItem('_wvTried')) return;
+  sessionStorage.setItem('_wvTried','1');
+  var url=location.href.replace(/[?#].*$/,'');
+  var host=url.replace(/^https?:\/\//,'');
+  if(/android/i.test(ua)){
+    // 方法1：googlechromes:// 直接喚起 Chrome
+    location.href='googlechromes://'+host;
+    // 方法2：若 500ms 後還在這頁，試 intent://
+    setTimeout(function(){
+      location.href='intent://'+host+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(url)+';end';
+    },500);
+  } else if(/iPhone|iPad|iPod/i.test(ua)){
+    // iOS：試 googlechromes://，Chrome 未裝則不跳
+    location.href='googlechromes://'+host;
+  }
+})();
+</script>
+<style>
+  :root{
+    --paper:#f7efda; --ink:#46382a; --soft:#9a8a72; --line:#e0cfae;
+    --rose:#ff8fb1; --rose-d:#e86f95; --peach:#ffb27a; --sky:#8fd0ff;
+    --mint:#8fe0c0; --lav:#b3a4ff; --gold:#ffd86b; --cream:#f1e6cc;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;min-height:100vh;color:var(--ink);
+    font-family:"Nunito","Baloo 2","Microsoft JhengHei","PingFang TC","Segoe UI Emoji",system-ui,sans-serif;
+    /* 自訂底圖優先：把圖片放到 assets/theme/background.png（或 .jpg）就會自動採用；
+       沒放圖時，下面的深紫色魔法夜空漸層會自動當底色 */
+    background-color:#0e0620;
+    background-image:
+      url("assets/theme/background.png"),
+      url("assets/theme/background.jpg"),
+      radial-gradient(ellipse 900px 700px at 12% 78%, rgba(100,35,200,.55) 0%, transparent 55%),
+      radial-gradient(ellipse 700px 500px at 88% 22%, rgba(120,50,220,.45) 0%, transparent 55%),
+      radial-gradient(ellipse 500px 350px at 50% 5%, rgba(80,20,160,.4) 0%, transparent 60%),
+      radial-gradient(ellipse 1200px 500px at 50% 60%, rgba(30,8,80,.7) 0%, transparent 70%),
+      linear-gradient(180deg,#080312 0%, #110724 50%, #0c051a 100%);
+    background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,no-repeat,no-repeat,no-repeat;
+    background-position:center center,center center,center,center,center,center,center;
+    background-size:cover,cover,auto,auto,auto,auto,auto;
+    background-attachment:fixed;
+    padding:18px;}
+  .wrap{max-width:800px;margin:0 auto;position:relative;z-index:1;}
+  header.top{display:flex;align-items:center;justify-content:center;margin:12px 2px 20px;}
+
+  .card{background:#f6ecd5;border-radius:24px;padding:16px 18px;margin-bottom:14px;
+    box-shadow:0 10px 30px rgba(70,45,20,.22);border:1px solid var(--line);}
+  .card h2{font-size:16px;margin:0 0 12px;display:flex;align-items:center;gap:8px;font-weight:800;}
+  .optpanel{background:none !important;border:none !important;box-shadow:none !important;padding:8px 0 !important;}
+  .optpanel h2{color:#f5e8c0;text-shadow:0 1px 6px rgba(0,0,0,.6);}
+  .preview-card{background:none !important;border:none !important;box-shadow:none !important;padding:0 !important;}
+  .preview-card h2{display:none !important;}
+  .preview-wrap{position:relative;width:100%;}
+  .preview-img{width:100%;height:auto;display:block;border-radius:16px;}
+  .prev-cap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:85%;text-align:center;color:#fff !important;font-weight:700;
+    text-shadow:0 1px 6px rgba(0,0,0,.7);pointer-events:none;}
+  .opts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;}
+  @media(max-width:560px){
+    .opts{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+    .opt{padding:8px 4px 6px;}
+    .opt .e{font-size:48px;}
+    .opt .l{font-size:13px;margin-top:5px;}
+  }
+  .opt{cursor:pointer;border:none;border-radius:16px;padding:14px 6px 10px;
+    text-align:center;background:none;transition:.16s ease;user-select:none;position:relative;}
+  .opt:hover{transform:translateY(-4px);}
+  .opt .e{font-size:88px;line-height:1.05;}
+  .opt .l{display:block;font-size:18px;margin-top:10px;font-weight:900;
+    color:#fff;text-shadow:0 0 10px rgba(140,60,255,.9),0 1px 4px rgba(0,0,0,.8);
+    letter-spacing:.5px;}
+  .opt.sel{background:rgba(255,230,100,.25);
+    box-shadow:0 6px 16px rgba(255,200,60,.3);transform:translateY(-3px) scale(1.03);}
+  .opt.sel::after{content:"✓";position:absolute;top:4px;right:6px;font-size:11px;
+    color:#fff;background:var(--rose);border-radius:50%;width:16px;height:16px;line-height:16px;font-weight:800;}
+
+  /* 分頁式選擇器：圖片按鈕版 */
+  .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px;}
+  .tab{position:relative;font-family:inherit;cursor:pointer;border:none;border-radius:0;
+    background:none;padding:0;transition:.15s ease;color:var(--ink);
+    display:flex;flex-direction:column;align-items:center;min-width:0;}
+  .tab-bg-img{width:100%;height:auto;display:block;object-fit:contain;transition:.15s ease;}
+  .tab:hover .tab-bg-img{transform:translateY(-3px);filter:brightness(1.08);}
+  .tab.active .tab-bg-img{transform:translateY(-3px);filter:brightness(1.12);}
+  /* 選好的選項（例：公主）疊在按鈕上、就在分類文字（主角）下方 */
+  .tab .tab-pick{position:absolute;left:50%;bottom:9%;transform:translateX(-50%);
+    font-size:13px;font-weight:800;color:#fff;line-height:1.1;
+    background:rgba(58,22,104,.85);padding:1px 9px;border-radius:11px;
+    max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    box-shadow:0 2px 6px rgba(0,0,0,.45);pointer-events:none;}
+  .tab .tab-pick.none{display:none;}
+  .tab-no-img{border:2px solid var(--line) !important;border-radius:16px !important;
+    background:#f6ecd5 !important;padding:9px 6px 8px !important;}
+  .optpanel{animation:pop .3s cubic-bezier(.2,.9,.3,1.3);}
+  /* 主按鈕：圖片版 */
+  .img-btn{background:none !important;box-shadow:none !important;
+    padding:0 !important;border:none !important;min-width:0 !important;flex:none;}
+  .img-btn img{display:block;height:92px;width:auto;object-fit:contain;transition:.12s;}
+  .img-btn:active img{transform:scale(.95) translateY(3px);}
+  .img-btn:disabled{opacity:.55;}
+  /* 四選完成：按鈕發光動畫 */
+  @keyframes btnGlow{
+    0%,100%{box-shadow:0 0 8px 2px rgba(255,180,60,.4),0 0 20px 6px rgba(255,140,60,.25);}
+    50%{box-shadow:0 0 18px 6px rgba(255,200,80,.7),0 0 40px 14px rgba(255,160,60,.4);}
+  }
+  .img-btn.glow img{animation:btnGlow 1.2s ease-in-out infinite;border-radius:20px;}
+  .gen.glow:not(.img-btn){animation:btnGlow 1.2s ease-in-out infinite;}
+  @media(max-width:560px){
+    body{padding-left:9px;padding-right:9px;}   /* 兩側少留白，內容更寬、按鈕更好按 */
+    .tabs{gap:5px;margin-bottom:14px;}          /* 上方四個頁籤鋪滿、平均分配、加大 */
+    .tab .tab-pick{font-size:12px;}
+    .img-btn img{height:70px;}
+  }
+
+  .controls{display:flex;gap:16px;flex-wrap:wrap;margin:8px 0 28px;justify-content:center;}
+  .big{flex:1;min-width:170px;border:none;border-radius:20px;cursor:pointer;
+    font-family:inherit;font-size:18px;font-weight:800;color:#fff;padding:15px;
+    box-shadow:0 8px 0 rgba(0,0,0,.10);transition:.1s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .big:active{transform:translateY(5px);box-shadow:0 3px 0 rgba(0,0,0,.10);}
+  .big:disabled{opacity:.55;cursor:wait;}
+  .gen{background:linear-gradient(90deg,#ff7eb3,#ff9a62);}
+  .rand{background:linear-gradient(90deg,#7fc8ff,#9b8cff);flex:0 0 auto;min-width:120px;font-size:16px;}
+  /* 手機：改用畫面底部「固定動作列」(#mobileBar)，依狀態切換「變出故事／開始念」 */
+  .mobilebar{display:none;}
+  @media(max-width:560px){
+    .controls{display:none;}                 /* 由底部固定列取代，避免重複 */
+    .mobilebar{display:flex;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:50;
+      padding:8px 14px calc(8px + env(safe-area-inset-bottom));
+      background:rgba(60,38,19,.93);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+      box-shadow:0 -6px 20px rgba(0,0,0,.32);transition:transform .25s ease;}
+    .mobilebar.hide{transform:translateY(135%);pointer-events:none;}   /* 捲到語音設定區時自動讓開 */
+    .mobilebar .big{flex:1 1 0;margin:0;padding:13px 8px;font-size:15px;min-width:0;
+      box-shadow:0 5px 0 rgba(0,0,0,.12);}
+    .mobilebar .big:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.12);}
+    .mobilebar .play{flex:1.4 1 0;}
+    body{padding-bottom:86px;}
+  }
+
+  /* 故事書 */
+  .book{display:none;background:linear-gradient(180deg,#f8efd9,#f1e4c8);border-radius:26px;
+    border:1px solid #e0cfae;box-shadow:0 18px 44px rgba(60,38,15,.28);overflow:hidden;margin-bottom:14px;}
+  .book.show{display:block;animation:pop .45s cubic-bezier(.2,.9,.3,1.3);}
+  @keyframes pop{from{transform:scale(.94) translateY(8px);opacity:0;}to{transform:none;opacity:1;}}
+  /* 右側伸縮抽屜：故事開啟後才出現，點開有「重設故事」 */
+  .resetDrawer{position:fixed;top:50%;right:0;transform:translateY(-50%);z-index:60;
+    display:none;align-items:center;}
+  .resetDrawer.show{display:flex;}
+  .resetDrawer .rd-panel{overflow:hidden;max-width:0;transition:max-width .3s ease;white-space:nowrap;}
+  .resetDrawer.open .rd-panel{max-width:220px;}
+  .resetDrawer .rd-reset{margin-right:4px;background:linear-gradient(90deg,#ff7eb3,#ff6a8c);
+    color:#fff;border:none;padding:13px 18px;border-radius:16px;font-size:17px;font-weight:800;
+    cursor:pointer;box-shadow:0 6px 16px rgba(60,38,15,.28);}
+  .resetDrawer .rd-tab{background:linear-gradient(90deg,#9b8cff,#7c6cff);color:#fff;border:none;
+    width:40px;height:66px;border-radius:16px 0 0 16px;font-size:22px;cursor:pointer;
+    box-shadow:-3px 4px 12px rgba(60,38,15,.25);line-height:1;}
+  @media print{.resetDrawer{display:none !important;}}
+  .scene{width:100%;display:block;}
+  /* 自訂圖片場景：背景圖 + 前景人物圖（疊圖） */
+  .sceneBox{position:relative;width:100%;aspect-ratio:380/170;overflow:hidden;background:#cfe6ff;}
+  .sceneBox .scene{position:absolute;inset:0;width:100%;height:100%;}
+  .sceneBg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;}
+  .sceneChar{position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+    height:82%;width:auto;max-width:60%;object-fit:contain;object-position:bottom;z-index:3;
+    filter:drop-shadow(0 6px 8px rgba(0,0,0,.25));animation:pop .5s cubic-bezier(.2,.9,.3,1.3);}
+  .sceneCharEmoji{position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+    z-index:2;font-size:64px;line-height:1;}
+  /* 主畫面即時預覽 */
+  .preview-card .sceneBox{border-radius:16px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05);}
+  .prev-cap{text-align:center;margin-top:10px;font-weight:800;color:var(--rose-d);font-size:16px;}
+  .book .inner{padding:18px 22px 16px;}
+  .book .title{font-size:23px;text-align:center;color:var(--rose-d);margin:0 0 14px;font-weight:800;}
+  .book .body{font-size:20px;line-height:2.05;letter-spacing:.3px;}
+  .book .body .sentence{display:inline;transition:.25s;}
+  .book .body .sentence.active{background:linear-gradient(180deg,transparent 58%,#fff0b8 58%);
+    border-radius:8px;}
+  .word{display:inline-block;white-space:nowrap;}
+  .ch{display:inline-block;transition:color .12s, transform .12s;border-radius:6px;
+    will-change:transform;}
+  .ch.read{color:var(--rose-d);}
+  /* 朗讀中：當前字/詞變紅色，不跳動 */
+  .ch.cursor{color:#e00;background:none;padding:0;border-radius:0;box-shadow:none;animation:none;}
+  .word.cursor{color:#e00;background:none;padding:0;border-radius:0;box-shadow:none;animation:none;}
+  .word.cursor .ch{color:#e00;background:none;box-shadow:none;}
+  @keyframes bounce{
+    0%{transform:translateY(0) scale(1);}
+    40%{transform:translateY(-12px) scale(1.42) rotate(-4deg);}
+    70%{transform:translateY(-3px) scale(1.2) rotate(2deg);}
+    100%{transform:translateY(0) scale(1.18);}
+  }
+  .moral{margin-top:16px;background:linear-gradient(90deg,#fff6d6,#ffe9f2);border-radius:16px;
+    padding:13px 15px;font-size:18px;font-weight:800;color:#c46a00;display:flex;gap:8px;
+    align-items:flex-start;}
+  .moral .mtxt .ch.read{color:#e07a00;}
+  .moral .star{animation:twinkle 1.6s ease-in-out infinite;}
+  @keyframes twinkle{0%,100%{transform:scale(1) rotate(0);opacity:1;}50%{transform:scale(1.25) rotate(18deg);opacity:.8;}}
+
+  /* 語音 */
+  .voicebar{display:none;}
+  .voicebar.show{display:block;}
+  .voicebar .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:11px;}
+  .voicebar .row .lbl{font-size:14px;font-weight:700;min-width:74px;}
+  select{font-family:inherit;font-size:14.5px;padding:10px 12px;border-radius:13px;
+    border:2px solid var(--line);background:var(--cream);flex:1;min-width:160px;color:var(--ink);}
+  .chip{cursor:pointer;border:2px solid var(--line);border-radius:14px;padding:8px 14px;
+    font-size:14px;font-weight:700;background:var(--cream);user-select:none;}
+  .chip.sel{background:#fff0f6;border-color:var(--rose);color:var(--rose-d);}
+  .playrow{display:flex;gap:10px;flex-wrap:wrap;}
+  .play{flex:1;min-width:150px;background:linear-gradient(90deg,#3ddc84,#23b56a);}
+  .stop{flex:0 0 auto;min-width:96px;background:linear-gradient(90deg,#ff8a8a,#ff6b6b);}
+  .save{flex:0 0 auto;min-width:110px;background:linear-gradient(90deg,#ffc24d,#ff9f1c);}
+  .warn{display:none;background:#fff4f4;color:#d4516b;border-radius:13px;padding:9px 12px;
+    font-size:13px;margin-top:8px;border:1px solid #ffd9e0;}
+  .hint{font-size:12px;color:var(--soft);text-align:center;margin-top:8px;}
+
+  /* 我的故事書 */
+  .shelf{display:none;}
+  .shelf.show{display:block;}
+  .saved{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;
+    background:var(--cream);margin-bottom:8px;border:1px solid var(--line);}
+  .saved .st{flex:1;font-weight:700;font-size:14.5px;cursor:pointer;}
+  .saved .st small{display:block;color:var(--soft);font-weight:600;font-size:11.5px;margin-top:1px;}
+  .saved button{border:none;border-radius:10px;padding:7px 11px;font-size:12.5px;cursor:pointer;
+    font-family:inherit;font-weight:700;}
+  .saved .open{background:#e9f3ff;color:#3b82d6;}
+  .saved .del{background:#ffe9ec;color:#e0566f;}
+  .empty{color:var(--soft);font-size:13.5px;text-align:center;padding:6px;}
+
+  /* 故事控制列（標題下方）：開始唸／停／換語言 */
+  .storybar{display:flex;gap:8px;margin:2px 0 14px;}
+  .storybar .big{flex:1;min-width:0;padding:12px 8px;font-size:16px;box-shadow:0 5px 0 rgba(0,0,0,.12);}
+  .storybar .big:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.12);}
+  .storybar .play{flex:1.3;}
+  .lang{width:100%;background:linear-gradient(90deg,#7fd0ff,#9b8cff);}
+  .storybar .lang{width:auto;flex:1.1;}
+
+  @media print{
+    body{background:#fff;padding:0;}
+    header.top,.card,.controls,.voicebar,.shelf,.hint,.langrow{display:none !important;}
+    .book{box-shadow:none;border:none;}
+  }
+
+  /* 角色選項格：顯示角色圖片 */
+  /* 圖片寬度跟著格子縮放，永遠不會超出格子（手機不再被切掉） */
+  .opt-img{width:100%;max-width:124px;height:auto;aspect-ratio:1/1;object-fit:contain;object-position:bottom center;display:block;margin:0 auto 2px;}
+  .opt-fb{font-size:30px;line-height:1.05;}
+  .opt:has(.opt-img) .opt-fb{display:none;}
+
+  /* 試玩次數提示 */
+  .trial-badge{text-align:center;margin:0 0 12px;font-size:20px;font-weight:800;
+    color:#ffd86b;text-shadow:0 2px 8px rgba(0,0,0,.6),0 0 20px rgba(255,200,60,.3);
+    letter-spacing:.5px;}
+  .trial-badge.unlocked{color:#3ddc84;}
+
+  /* 付費牆 Overlay */
+  .paywall{display:none;position:fixed;inset:0;z-index:100;
+    background:rgba(14,6,32,.85);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    align-items:center;justify-content:center;padding:18px;}
+  .paywall.show{display:flex;}
+  .paywall-card{background:linear-gradient(180deg,#f8efd9,#f1e4c8);border-radius:26px;
+    padding:28px 24px 22px;max-width:400px;width:100%;position:relative;
+    box-shadow:0 18px 44px rgba(60,38,15,.35);animation:pop .4s cubic-bezier(.2,.9,.3,1.3);}
+  .paywall-close{position:absolute;top:10px;right:14px;background:none;border:none;
+    font-size:22px;cursor:pointer;color:var(--soft);line-height:1;}
+  .paywall-title{text-align:center;font-size:22px;font-weight:800;color:var(--rose-d);margin:0 0 10px;}
+  .paywall-desc{text-align:center;font-size:15px;color:var(--ink);margin:0 0 16px;line-height:1.6;}
+  .paywall-contact{background:linear-gradient(90deg,#fff6d6,#ffe9f2);border-radius:14px;
+    padding:14px 16px;margin:0 0 16px;font-size:14px;color:#c46a00;text-align:center;
+    font-weight:700;line-height:1.7;}
+  .paywall-input-row{display:flex;gap:8px;margin:0 0 8px;}
+  .paywall-input-row input{flex:1;font-family:inherit;font-size:16px;padding:12px 14px;
+    border-radius:14px;border:2px solid var(--line);background:var(--cream);color:var(--ink);
+    text-align:center;letter-spacing:1px;font-weight:700;}
+  .paywall-input-row input:focus{outline:none;border-color:var(--rose);}
+  .paywall-input-row button{border:none;border-radius:14px;padding:12px 20px;
+    font-family:inherit;font-size:16px;font-weight:800;color:#fff;cursor:pointer;
+    background:linear-gradient(90deg,#3ddc84,#23b56a);white-space:nowrap;}
+  .paywall-err{display:none;text-align:center;font-size:13px;color:#d4516b;
+    font-weight:700;margin:4px 0 0;}
+  .paywall-err.show{display:block;animation:pop .3s ease;}
+
+  /* 巫師裝飾（左側） */
+  .deco-wizard{position:fixed;bottom:0;left:0;z-index:0;pointer-events:none;
+    width:120px;opacity:.6;
+    filter:drop-shadow(0 0 20px rgba(140,80,255,.75));}
+  .deco-wizard img{width:100%;height:auto;object-fit:contain;object-position:bottom;}
+  @media(max-width:880px){.deco-wizard{display:none;}}
+
+  /* WebView 提示橫幅 */
+  .wv-banner{background:linear-gradient(135deg,#6a3de8,#9b6dff);color:#fff;
+    padding:14px 16px;font-size:14px;line-height:1.6;text-align:center;
+    font-weight:700;display:none;}
+  .wv-banner b{color:#ffd86b;}
+  .wv-banner .wv-open-btn{display:inline-block;margin-top:8px;padding:9px 24px;
+    background:#ffd86b;color:#4a2d8a;border:none;border-radius:20px;font-size:15px;
+    font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(0,0,0,.25);}
+  .wv-banner .wv-open-btn:active{transform:scale(.96);}
+  .wv-banner .wv-close{position:absolute;right:6px;top:4px;background:none;border:none;
+    color:rgba(255,255,255,.6);font-size:16px;cursor:pointer;padding:2px 6px;}
+  /* WebView 語音失敗提示 toast */
+  .wv-toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+    background:rgba(30,10,60,.95);color:#fff;padding:14px 22px;border-radius:18px;
+    font-size:14px;font-weight:700;line-height:1.7;text-align:center;z-index:9999;
+    box-shadow:0 4px 24px rgba(0,0,0,.5);max-width:88vw;
+    animation:toastIn .3s ease;}
+  .wv-toast b{color:#ffd86b;}
+  .wv-toast .wv-open-btn{display:inline-block;margin-top:8px;padding:8px 22px;
+    background:#ffd86b;color:#4a2d8a;border:none;border-radius:18px;font-size:14px;
+    font-weight:800;cursor:pointer;font-family:inherit;}
+  @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(20px);}
+    to{opacity:1;transform:translateX(-50%) translateY(0);}}
+</style>
+</head>
+<body>
+
+<div class="wv-banner" id="wvBanner" style="position:relative;">
+  🔊 語音朗讀需要用瀏覽器才能播放喔！
+  <br>
+  <button class="wv-open-btn" onclick="_openInChrome()">👉 用 Chrome 開啟（聽故事）</button>
+  <button class="wv-close" onclick="this.parentElement.style.display='none'">✕</button>
+</div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="logo" id="logoWrap" onclick="goHome()" title="回到首頁・重新選主角"
+         style="cursor:pointer;">
+      <img id="logoImg" src="assets/theme/title.png" alt="魔法故事屋"
+           style="max-height:90px;max-width:100%;object-fit:contain;display:block;">
+    </div>
+  </header>
+
+  <div id="groups"></div>
+
+  <div class="trial-badge" id="trialBadge"></div>
+  <div class="controls">
+    <button class="big gen img-btn" id="genBtn" onclick="generate()">
+      <img src="assets/theme/btn-main.png" alt="變出一個故事！"
+           onerror="this.closest('button').classList.remove('img-btn');this.outerHTML='🎲 變出一個故事！'">
+    </button>
+    <button class="big rand img-btn" onclick="randomizeAll()">
+      <img src="assets/theme/btn-rand.png" alt="全部隨機"
+           onerror="this.closest('button').classList.remove('img-btn');this.outerHTML='🎰 全部隨機'">
+    </button>
+  </div>
+
+  <!-- 故事書 -->
+  <div class="book" id="book">
+    <div id="sceneWrap"></div>
+    <div class="inner">
+      <div class="title" id="storyTitle"></div>
+      <!-- 故事控制列：就在標題下面，直接唸故事／換語言 -->
+      <div class="storybar">
+        <button class="big play" onclick="speak()">▶ 開始唸</button>
+        <button class="big stop" onclick="stopSpeak()">⏹ 停</button>
+        <button class="big lang" id="langBtn" onclick="toggleLang()">🌍 英文版</button>
+      </div>
+      <div class="body" id="storyBody"></div>
+      <div class="moral" id="storyMoral"><span class="star">🌟</span><span class="mtxt" id="moralTxt"></span></div>
+    </div>
+  </div>
+
+  <!-- 語音 -->
+  <div class="card voicebar" id="voicebar">
+    <h2>🔧 語音設定（選聲音・速度）</h2>
+    <div class="row">
+      <span class="lbl">🎤 聲音</span>
+      <select id="voiceSel"></select>
+    </div>
+    <div class="row">
+      <span class="lbl">⏩ 速度</span>
+      <span class="chip" data-rate="0.8" onclick="setRate(this,0.8)">🐢 慢慢</span>
+      <span class="chip sel" data-rate="1.0" onclick="setRate(this,1.0)">🚶 剛好</span>
+      <span class="chip" data-rate="1.2" onclick="setRate(this,1.2)">🐇 快快</span>
+    </div>
+    <div class="playrow">
+      <button class="big save" onclick="saveStory()">⭐ 收藏</button>
+      <button class="big save" style="background:linear-gradient(90deg,#9b8cff,#7c6cff)" onclick="window.print()">🖨 列印</button>
+    </div>
+    <div class="warn" id="ttsWarn">😅 這個瀏覽器好像沒有中文／英文語音，建議用 Chrome 或 Edge 打開喔！</div>
+    <div class="hint">唸到哪個字，那個字就會變成紅色～跟著一起唸吧！（第一次按可能要等一下下）<br>
+      💡 想聽<b>更像真人</b>的聲音嗎？用 <b>Microsoft Edge</b> 打開，選單裡有「✨ 擬真」的微軟神經網路語音（免費），語氣最自然喔！</div>
+  </div>
+
+  <!-- 我的故事書 -->
+  <div class="card shelf" id="shelf">
+    <h2>📚 我的故事書</h2>
+    <div id="shelfList"></div>
+  </div>
+</div>
+
+<!-- 手機底部固定動作列：依有無故事切換「變出故事 / 開始念」 -->
+<div class="mobilebar" id="mobileBar"></div>
+
+<!-- 右側伸縮抽屜：故事開啟後出現，點開可「重設故事」回到選主角畫面 -->
+<div class="resetDrawer" id="resetDrawer">
+  <div class="rd-panel"><button class="rd-reset" onclick="resetStory()">🔄 重設故事</button></div>
+  <button class="rd-tab" onclick="toggleResetDrawer()" title="更多選項">⚙️</button>
+</div>
+
+<!-- 付費牆 Overlay -->
+<div class="paywall" id="paywall">
+  <div class="paywall-card">
+    <button class="paywall-close" onclick="closePaywall()">&times;</button>
+    <div class="paywall-title">免費故事用完囉！</div>
+    <div class="paywall-desc">你已經聽了 5 個精彩故事 🎉<br>解鎖完整版，可以無限產生故事喔！</div>
+    <div class="paywall-contact">總共有 4,096 種不同的故事等你探索！<br>只要 400 元即可解鎖全部玩法！<br><br>匯款資料 xxxxxxx<br>匯款完請寄到 leoneramy@gmail.com<br>告知後五碼，即可開通無限暢玩功能</div>
+    <div class="paywall-input-row">
+      <input type="text" id="unlockInput" placeholder="輸入解鎖碼" autocomplete="off">
+      <button onclick="tryUnlock()">🔓 解鎖</button>
+    </div>
+    <div class="paywall-err" id="unlockErr">解鎖碼不正確，請再試一次</div>
+  </div>
+</div>
+
+<script>
+/* =================== 試玩 / 付費牆 =================== */
+const FREE_LIMIT=5;
+const UNLOCK_CODE='MAGIC-STORY';
+function getStoryCount(){ return parseInt(localStorage.getItem('storyCount')||'0',10); }
+function addStoryCount(){ localStorage.setItem('storyCount', getStoryCount()+1); updateTrialBadge(); }
+function isUnlocked(){ return localStorage.getItem('storyUnlocked')==='1'; }
+function updateTrialBadge(){
+  const el=document.getElementById('trialBadge'); if(!el) return;
+  if(isUnlocked()){
+    el.textContent='✨ 已解鎖完整版'; el.className='trial-badge unlocked';
+  }else{
+    const left=Math.max(0, FREE_LIMIT-getStoryCount());
+    el.textContent='✨ 免費試玩：剩餘 '+left+' 次';
+    el.className='trial-badge'+(left===0?' used':'');
+  }
+}
+function checkTrialOrPay(){
+  if(isUnlocked()) return true;
+  if(getStoryCount()<FREE_LIMIT) return true;
+  showPaywall(); return false;
+}
+function showPaywall(){
+  document.getElementById('unlockErr').classList.remove('show');
+  document.getElementById('unlockInput').value='';
+  document.getElementById('paywall').classList.add('show');
+}
+function closePaywall(){ document.getElementById('paywall').classList.remove('show'); }
+function tryUnlock(){
+  const input=document.getElementById('unlockInput').value.trim().toUpperCase();
+  if(input===UNLOCK_CODE){
+    localStorage.setItem('storyUnlocked','1');
+    closePaywall();
+    updateTrialBadge();
+    generate();
+  }else{
+    document.getElementById('unlockErr').classList.add('show');
+    document.getElementById('unlockInput').focus();
+  }
+}
+// Enter 鍵送出解鎖碼
+document.addEventListener('DOMContentLoaded',()=>{
+  const inp=document.getElementById('unlockInput');
+  if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter') tryUnlock(); });
+});
+
+/* =================== 選項 =================== */
+const GROUPS = [
+  {key:'char', icon:'👤', short:'主角', title:'👤 主角是誰？', opts:[
+    {id:'princess',e:'👸',l:'公主'},{id:'prince',e:'🤴',l:'王子'},
+    {id:'fairy',e:'🧚',l:'小精靈'},{id:'wizard',e:'🧙',l:'小巫師'},
+    {id:'mermaid',e:'🧜‍♀️',l:'美人魚'},{id:'astronaut',e:'👨‍🚀',l:'太空人'},
+    {id:'robot',e:'🤖',l:'機器人'},{id:'superhero',e:'🦸',l:'小英雄'}]},
+  {key:'attr', icon:'💛', short:'味道', title:'💛 故事的味道？', opts:[
+    {id:'wisdom',e:'🧠',l:'智慧'},{id:'brave',e:'🦁',l:'勇敢'},
+    {id:'kind',e:'💗',l:'善良'},{id:'friend',e:'🤝',l:'友情'},{id:'curious',e:'🔍',l:'好奇'},
+    {id:'fable',e:'📜',l:'寓言'},
+    {id:'confident',e:'💪',l:'自信'},{id:'cherish',e:'💎',l:'珍惜'}]},
+  {key:'loc', icon:'📍', short:'地點', title:'📍 在哪裡發生？', opts:[
+    {id:'forest',e:'🌲',l:'魔法森林'},{id:'castle',e:'🏰',l:'神秘城堡'},
+    {id:'snow',e:'⛄',l:'雪國秘境'},{id:'sea',e:'🌊',l:'深海世界'},
+    {id:'space',e:'🌌',l:'星空宇宙'},{id:'candy',e:'🍭',l:'糖果小鎮'},
+    {id:'magic',e:'🪄',l:'魔法學院'},{id:'cloud',e:'☁️',l:'雲朵王國'}]},
+  {key:'act', icon:'🎬', short:'時機', title:'🎬 在做什麼的時候？', opts:[
+    {id:'sleep',e:'😴',l:'睡覺的時候'},{id:'fun',e:'🎮',l:'遊玩的時候'},
+    {id:'eat',e:'🍽️',l:'吃飯的時候'},{id:'dance',e:'💃',l:'跳舞的時候'},
+    {id:'sing',e:'🎤',l:'唱歌的時候'},{id:'adventure',e:'🧭',l:'冒險的時候'},
+    {id:'birthday',e:'🎂',l:'慶生的時候'},{id:'daze',e:'💭',l:'發呆的時候'}]},
+];
+const sel = {char:null, attr:null, loc:null, act:null};
+const labelOf = (g,id)=>GROUPS.find(x=>x.key===g).opts.find(o=>o.id===id).l;
+const emojiOf = (g,id)=>GROUPS.find(x=>x.key===g).opts.find(o=>o.id===id).e;
+
+/* =================== 內建故事素材（中英雙語，索引一一對應）=================== */
+const CHAR = {
+  princess:{e:'👸',name:'小公主莉莉',hint:'善良又愛問為什麼', nameEn:`Princess Lily`, shortEn:`Lily`, hintEn:`kind and always asking why`},
+  girl:{e:'👧',name:'小女孩小美',hint:'活潑又愛笑', nameEn:`a girl named Mei`, shortEn:`Mei`, hintEn:`lively and full of smiles`},
+  beggar:{e:'🧒',name:'沒有家的小安',hint:'雖然沒有錢，卻有一顆暖暖的心', nameEn:`Little An, who had no home`, shortEn:`Little An`, hintEn:`poor in pocket but warm in heart`},
+  prince:{e:'🤴',name:'小王子奧力',hint:'最喜歡冒險', nameEn:`Prince Olly`, shortEn:`Olly`, hintEn:`a great lover of adventures`},
+  animal:{e:'🐰',name:'小兔子跳跳',hint:'耳朵長長、蹦蹦跳跳', nameEn:`Hoppy the Bunny`, shortEn:`Hoppy`, hintEn:`long-eared and always hopping`},
+  robot:{e:'🤖',name:'小機器人嗶嗶',hint:'頭上有天線、會發出嗶嗶聲', nameEn:`Beep the Robot`, shortEn:`Beep`, hintEn:`shiny, with a little antenna that goes beep-beep`},
+  dino:{e:'🦕',name:'小恐龍阿龍',hint:'身體大大的、心卻軟軟的', nameEn:`Dino the Dinosaur`, shortEn:`Dino`, hintEn:`big in body but soft in heart`},
+  wizard:{e:'🧙',name:'小巫師米米',hint:'有一根會冒星星的魔法棒', nameEn:`Mimi the Little Wizard`, shortEn:`Mimi`, hintEn:`always holding a star-sparkling wand`},
+  astronaut:{e:'👨‍🚀',name:'太空人阿星',hint:'最愛數天上的星星', nameEn:`Astro the Astronaut`, shortEn:`Astro`, hintEn:`a great counter of stars`},
+  mermaid:{e:'🧜‍♀️',name:'小美人魚珠珠',hint:'尾巴亮晶晶、歌聲很好聽', nameEn:`Pearl the Mermaid`, shortEn:`Pearl`, hintEn:`sparkly-tailed, with a lovely singing voice`},
+  superhero:{e:'🦸',name:'小英雄阿俠',hint:'披著紅斗篷、最愛幫助人', nameEn:`Captain Cape`, shortEn:`Cape`, hintEn:`in a red cape, always helping others`},
+  fairy:{e:'🧚',name:'小精靈葉葉',hint:'有一對亮晶晶的翅膀', nameEn:`Twinkle the Fairy`, shortEn:`Twinkle`, hintEn:`sparkly-winged and full of magic`},
+  chef:{e:'👨‍🍳',name:'小廚師多多',hint:'最會做香噴噴的點心', nameEn:`Chef Coco`, shortEn:`Coco`, hintEn:`a maker of the yummiest treats`},
+  scientist:{e:'🧑‍🔬',name:'小科學家妞妞',hint:'最愛做有趣的小實驗', nameEn:`Niki the Scientist`, shortEn:`Niki`, hintEn:`a lover of fun little experiments`},
+  insect:{e:'🐞',name:'小瓢蟲點點',hint:'背上有七顆小黑點、最愛在葉子上散步', nameEn:`Dotty the Ladybug`, shortEn:`Dotty`, hintEn:`seven-dotted and fond of strolling on leaves`},
+};
+const LOC = {
+  forest:{where:['綠油油的大森林裡','住著好多小動物的森林深處','陽光從葉縫灑下來的森林小徑'],
+    thing:['一隻會說話的小鳥','一朵會發光的小花','一棵掛滿果子的老樹'],
+    sense:['風一吹，樹葉沙沙沙地唱起歌','空氣裡飄著青草和野花的香味','到處都是啾啾啾的鳥叫聲'],
+    whereEn:[`a big green forest`,`a deep forest full of little animals`,`a forest path dappled with sunlight`],
+    thingEn:[`a little bird that could talk`,`a tiny glowing flower`,`an old tree full of fruit`],
+    senseEn:[`When the wind blew, the leaves rustled a little song`,`The air smelled of fresh grass and wildflowers`,`Cheep, cheep — birdsong was everywhere`]},
+  sea:{where:['藍藍的海底世界','五顏六色的珊瑚礁旁','亮晶晶的海底花園'],
+    thing:['一隻彩色的小丑魚','一隻揮著手的小章魚','一顆發亮的小貝殼'],
+    sense:['泡泡咕嚕咕嚕往上飄','海水涼涼的、亮亮的','一群小魚游過來又游過去'],
+    whereEn:[`the deep blue sea`,`a colorful coral reef`,`a sparkly garden under the sea`],
+    thingEn:[`a colorful clownfish`,`a little octopus waving hello`,`a shiny little seashell`],
+    senseEn:[`Bubbles went glug-glug up to the top`,`The water was cool and bright`,`A school of little fish swam to and fro`]},
+  space:{where:['亮晶晶的外太空','星星一閃一閃的太空裡','漂浮著彩色星球的宇宙中'],
+    thing:['一顆對他眨眼睛的小星星','一艘迷路的小太空船','一隻揮著手的綠色小外星人'],
+    sense:['四周靜悄悄的，星星亮晶晶','身體輕飄飄地浮了起來','遠方的星球一閃一閃發著光'],
+    whereEn:[`sparkly outer space`,`a starry sky full of twinkles`,`a universe of colorful planets`],
+    thingEn:[`a little star winking hello`,`a lost little spaceship`,`a green little alien waving hello`],
+    senseEn:[`All around was quiet, and the stars sparkled`,`Their body floated up, light as a feather`,`Far-off planets twinkled and glowed`]},
+  castle:{where:['高高的雲端城堡裡','金光閃閃的古老城堡','有好多旋轉樓梯的城堡'],
+    thing:['一面會說話的魔鏡','一隻打瞌睡的小龍','一把會自己跳舞的金鑰匙'],
+    sense:['長長的紅地毯一路鋪到大門','牆上的火把搖搖晃晃','遠遠傳來叮叮咚咚的音樂聲'],
+    whereEn:[`a tall castle in the clouds`,`an old castle gleaming with gold`,`a castle full of winding staircases`],
+    thingEn:[`a magic mirror that could talk`,`a little dragon taking a nap`,`a golden key that danced by itself`],
+    senseEn:[`A long red carpet rolled all the way to the gate`,`Torches flickered on the walls`,`Faint ding-dong music drifted from afar`]},
+  snow:{where:['白茫茫的雪世界裡','蓋滿白雪的小村莊','閃著冰光的雪山上'],
+    thing:['一個圓滾滾的小雪人','一隻毛茸茸的小企鵝','一片亮晶晶的雪花'],
+    sense:['雪花輕輕地飄下來','腳踩在雪上喀吱喀吱響','呼出的氣變成白白的小煙'],
+    whereEn:[`a world of white snow`,`a village blanketed in snow`,`a snowy mountain gleaming with ice`],
+    thingEn:[`a round little snowman`,`a fluffy little penguin`,`a sparkly snowflake`],
+    senseEn:[`Snowflakes drifted softly down`,`Footsteps went crunch-crunch on the snow`,`Each breath turned into a little white puff`]},
+  candy:{where:['甜甜的糖果小鎮裡','棒棒糖路燈一閃一閃的糖果街','到處都是軟糖屋子的小鎮'],
+    thing:['一顆會跳舞的水果軟糖','一根會發出音樂的棒棒糖','一隻巧克力做的小熊'],
+    sense:['空氣裡飄著香甜的糖果味','腳下的路滑滑軟軟、QQ的','糖果屋的窗戶亮著彩虹色的光'],
+    whereEn:[`a sweet candy town`,`a candy street lined with lollipop lamps`,`a little town built of gummy houses`],
+    thingEn:[`a dancing gummy bear`,`a lollipop that played music`,`a little chocolate bear`],
+    senseEn:[`The air smelled sweet like candy`,`The ground underfoot was soft and bouncy`,`The windows of the candy houses glowed rainbow colors`]},
+  magic:{where:['古老的魔法學院裡','飄著魔法書香味的圖書塔','會自動移動樓梯的學院走廊'],
+    thing:['一本會自己翻頁的魔法書','一支會發光的魔法棒','一隻蹲在窗台上的貓頭鷹'],
+    sense:['空氣裡飄著淡淡的魔法粉末味','牆上的畫像偷偷眨了眨眼','遠遠傳來咒語練習的聲音'],
+    whereEn:[`an ancient academy of magic`,`a tower library that smelled of old spellbooks`,`a hallway with staircases that moved on their own`],
+    thingEn:[`a spellbook that turned its own pages`,`a wand that glowed softly`,`an owl perched on the windowsill`],
+    senseEn:[`The air smelled faintly of magic dust`,`A portrait on the wall gave a sneaky wink`,`Faint chanting drifted from a spell-practice room`]},
+  cloud:{where:['軟綿綿的雲朵王國裡','飄在天空中的雲朵城','灑滿陽光的雲朵草原'],
+    thing:['一隻踩著雲朵睡覺的小羊','一道掛在雲邊的彩虹橋','一片軟軟的、會彈跳的雲朵'],
+    sense:['踩在雲朵上軟軟的、像棉花糖','陽光從雲縫灑下溫暖的光','風輕輕吹來，雲朵慢慢飄動'],
+    whereEn:[`a fluffy kingdom of clouds`,`a castle of clouds floating in the sky`,`a sunny meadow made of clouds`],
+    thingEn:[`a little lamb sleeping on a cloud`,`a rainbow bridge resting on the cloud's edge`,`a soft, bouncy cloud`],
+    senseEn:[`Stepping on the clouds felt soft, like cotton candy`,`Sunlight poured warmly through gaps in the clouds`,`A gentle breeze blew, and the clouds drifted slowly`]},
+};
+const ACT = {
+  sleep:{clause:'正準備睡覺',opener:['閉上眼睛，做了一個好神奇好神奇的夢。','一進入夢鄉，奇妙的旅程就開始了。','枕頭軟軟的，夢裡的門悄悄打開了。'],
+    clauseEn:`was getting ready for bed`,openerEn:[`With eyes gently closed, a wonderful, magical dream began.`,`As dreamland arrived, a marvelous journey set off.`,`The pillow was soft, and a door inside the dream quietly opened.`]},
+  fun:{clause:'正玩得開心',opener:['玩得正高興的時候，發生了一件奇妙的事！','咯咯笑著笑著，前面出現了驚喜。','跑跑跳跳的時候，眼前突然亮了一下。'],
+    clauseEn:`was playing happily`,openerEn:[`Right in the middle of the fun, something amazing happened!`,`Giggling and giggling, a surprise appeared up ahead.`,`While running and jumping, the air suddenly sparkled.`]},
+  eat:{clause:'正在吃點心',opener:['吃著香香的點心，忽然聽到一個小小的聲音。','一口接一口，神奇的事情悄悄發生了。','點心還沒吃完，奇妙的客人就出現了。'],
+    clauseEn:`was having a snack`,openerEn:[`While munching a yummy snack, a tiny little voice was heard.`,`Bite after bite, something magical quietly happened.`,`Before the snack was even finished, a wondrous visitor appeared.`]},
+  dance:{clause:'正在跳舞',opener:['跳著舞，身體忽然像羽毛一樣輕飄起來！','轉了一個圈，眼前忽然冒出一道彩虹光。','舞步越跳越快，周圍忽然亮了起來。'],
+    clauseEn:`was dancing`,openerEn:[`Dancing along, the body suddenly felt as light as a feather!`,`Spinning around, a rainbow light suddenly appeared.`,`As the dance moves quickened, everything around began to glow.`]},
+  sing:{clause:'正在唱歌',opener:['唱著唱著，歌聲變成了一條彩色的路！','歌聲飄呀飄，把神奇的朋友都引來了。','一開口唱歌，周圍就亮了起來。'],
+    clauseEn:`was singing a song`,openerEn:[`Singing and singing, the song turned into a rainbow road!`,`The song floated up and up, calling magical friends near.`,`The moment the singing began, everything lit up.`]},
+  adventure:{clause:'正在冒險',opener:['才走進神祕的小路，冒險就開始了！','拿著地圖往前走，發現了好多新奇的東西。','翻過一座小山丘，眼前出現驚奇的景象。'],
+    clauseEn:`was on an adventure`,openerEn:[`The moment the mysterious path began, the adventure was on!`,`Holding a map and heading on, so many new wonders appeared.`,`Over a little hill, an amazing sight came into view.`]},
+  birthday:{clause:'正在慶生',opener:['許下生日願望的時候，蠟燭忽然閃出魔法！','吹熄蠟燭的那一刻，神奇的事發生了。','打開生日禮物，裡面跳出一個驚喜。'],
+    clauseEn:`was celebrating a birthday`,openerEn:[`While making a birthday wish, the candles suddenly sparkled with magic!`,`The moment the candles were blown out, something magical happened.`,`Opening a birthday gift, out popped a surprise.`]},
+  daze:{clause:'正在發呆',opener:['發著呆、望著遠方，腦袋裡忽然冒出奇妙的畫面。','愣愣地看著天空，雲朵竟然變成了好玩的形狀。','正在放空的時候，眼前悄悄出現了奇妙的東西。'],
+    clauseEn:`was daydreaming`,openerEn:[`Gazing off into the distance, a wondrous picture popped into mind.`,`Staring up at the sky, the clouds turned into funny shapes.`,`While spacing out, something magical quietly appeared.`]},
+};
+const ATTR_EN={wisdom:`Wisdom`,brave:`Bravery`,happy:`Happiness`,sad:`Feelings`,inspire:`Never-Give-Up`,kind:`Kindness`,friend:`Friendship`,curious:`Curiosity`,fable:`Fable`,reflect:`Reflection`,respect:`Respect`,confident:`Confidence`,cherish:`Cherish`,struggle:`Striving`,warmth:`Warmth`};
+const ARC = {
+  wisdom:{problem:['遇到了一個好難好難的謎題','發現大家都被一個問題難倒了','看到一座轉來轉去的迷宮','撿到一張畫著奇怪記號的藏寶圖'],
+    try:['一開始試了一次，可是沒有成功','急急忙忙亂猜，結果走錯了路','想要放棄，覺得自己一定做不到'],
+    action:['沒有慌張，靜靜地動動腦筋','把看到的線索一個一個拼起來','想了又想，終於想到一個聰明的好辦法','深呼吸，把問題拆成一小塊一小塊慢慢解'],
+    say:['「我再仔細看看，一定有辦法！」','「別急別急，慢慢想就會懂。」','「原來是這樣，我懂了！」'],
+    close:['大家都拍手說：「你好聰明！」一起開心地完成了。','謎題解開了，每個人臉上都露出大大的笑容。','藏寶箱打開了，裡面是滿滿的友情和糖果！'],
+    moral:['遇到困難先冷靜想一想，答案就會自己跑出來。','聰明不是天生的，是因為願意多想一步喔！','動動腦，再難的問題也會變簡單。'],
+    problemEn:[`had run into a really, really tricky riddle`,`found everyone stumped by one hard question`,`came upon a maze that twisted and turned`,`found a treasure map covered in strange marks`],
+    tryEn:[`tried once at first, but it didn't work`,`rushed and guessed, and went the wrong way`,`almost gave up, sure it couldn't be done`],
+    actionEn:[`stayed calm and thought quietly`,`put the clues together one by one`,`thought and thought, and finally had a clever idea`,`took a deep breath and solved it bit by bit`],
+    sayEn:[`"Let me look again — there must be a way!"`,`"No rush, no rush — think slowly and it makes sense."`,`"Oh, so that's how it is — I get it now!"`],
+    closeEn:[`Everyone clapped and cheered, "You're so clever!" and finished it together. `,`The riddle was solved, and big smiles spread across every face. `,`The treasure chest popped open — full of friendship and sweets! `],
+    moralEn:[`When something is hard, stay calm and think — the answer will come.`,`Being smart isn't something you're born with; it comes from thinking one step more!`,`Use your brain, and even hard problems become easy.`]},
+  brave:{problem:['前面有個黑漆漆的山洞，大家都不敢進去','突然颳起大風，好朋友被困住了','聽到奇怪的聲音，每個人都好害怕','一座搖搖晃晃的小橋擋在前面'],
+    try:['第一步才踏出去，腿就有點軟軟的','心臟撲通撲通跳，差點就轉身跑走','手心都是汗，悄悄躲到了大樹後面'],
+    action:['深呼吸，鼓起勇氣往前走了一步','雖然有點怕怕的，還是決定去幫助朋友','握緊小拳頭，告訴自己「我做得到！」','數了一、二、三，勇敢地踏了過去'],
+    say:['「我會保護大家，跟我來！」','「怕怕的也沒關係，我們一起走。」','「我做到了，原來我這麼勇敢！」'],
+    close:['他做到了！原來自己比想像中更勇敢。','大家為他歡呼，他的心裡住進了一隻小獅子。','過了橋，那一頭是好美好美的花海。'],
+    moral:['勇敢不是不害怕，而是害怕的時候還願意試試看。','只要鼓起勇氣，再難的事都可以挑戰看看。','勇敢的孩子，心裡會住著一隻小獅子。'],
+    problemEn:[`saw a dark cave ahead that no one dared enter`,`felt a big wind blow up, with a friend trapped`,`heard a strange sound that scared everyone`,`found a wobbly little bridge blocking the way`],
+    tryEn:[`took one step and felt wobbly knees`,`had a pounding heart and almost ran away`,`had sweaty palms and hid behind a big tree`],
+    actionEn:[`took a deep breath and bravely stepped forward`,`was a little scared, but chose to help a friend`,`squeezed two little fists and said, "I can do it!"`,`counted one, two, three, and bravely crossed over`],
+    sayEn:[`"I'll keep everyone safe — follow me!"`,`"It's okay to be scared; let's go together."`,`"I did it — I'm braver than I thought!"`],
+    closeEn:[`And it worked — braver than ever imagined! `,`Everyone cheered, and a little lion moved into the heart. `,`Across the bridge waited the loveliest field of flowers. `],
+    moralEn:[`Being brave isn't having no fear; it's trying even when you're scared.`,`With a little courage, you can take on even the hardest things.`,`A brave child has a little lion living in their heart.`]},
+  happy:{problem:['遇到一群悶悶不樂的小朋友','看見大家為了一件小事在生氣','下起了雨，活動取消，大家好失望','有個小朋友一個人孤孤單單地坐在角落'],
+    try:['一開始大家還是嘟著嘴，不想理人','說了一句話，可是沒有人笑','氣氛還是悶悶的，有點尷尬'],
+    action:['想到一個好玩的遊戲，邀大家一起玩','用大大的笑容和分享，把氣氛變得暖暖的','說了一個好好笑的故事，逗得大家哈哈大笑','把自己的點心分給每一個人'],
+    say:['「我們一起玩，一定超好玩！」','「來來來，這個分給你！」','「哈哈哈，你們看我！」'],
+    close:['笑聲傳遍了每個角落，大家都好快樂。','你看我、我看你，所有人都笑得好開心。','大家手牽著手，圍成一個大大的圓圈跳舞。'],
+    moral:['快樂會傳染，分享出去就會變得更多。','把快樂分給別人，自己會更更更快樂！','一個微笑，就能讓整個世界亮起來。'],
+    problemEn:[`met a group of glum, unhappy children`,`saw everyone upset over a little thing`,`found the rain had canceled everything, leaving everyone sad`,`saw a child sitting all alone in the corner`],
+    tryEn:[`saw everyone still pouting and quiet at first`,`said something, but no one laughed`,`felt the mood still gloomy and a bit awkward`],
+    actionEn:[`thought of a fun game and invited everyone to play`,`used a big smile and lots of sharing to warm everyone up`,`told a really funny story that made everyone laugh`,`shared a snack with every single one`],
+    sayEn:[`"Let's all play together — it'll be so much fun!"`,`"Here, here, this one's for you!"`,`"Ha ha ha, look at me, everyone!"`],
+    closeEn:[`Laughter filled every corner, and everyone was happy. `,`They looked at one another and all burst into happy smiles. `,`Everyone held hands and danced in one big circle. `],
+    moralEn:[`Happiness is catching; share it and it only grows.`,`Give happiness to others, and you'll feel even happier!`,`One little smile can light up the whole world.`]},
+  sad:{problem:['最心愛的玩具不見了','要和好朋友說再見，心裡好難過','努力好久的事卻沒成功，眼淚掉了下來','看著空空的位子，覺得好寂寞'],
+    try:['想忍住不哭，可是眼淚還是流了下來','一個人躲起來，誰都不想說話','嘴巴扁扁的，心裡悶悶的'],
+    action:['哭了一小場，好朋友輕輕地抱住他','慢慢明白，難過的時候把心情說出來會好一點','擦擦眼淚，告訴自己明天又是新的一天','把心裡的話，輕輕說給最愛的人聽'],
+    say:['「我現在好難過……」','「謝謝你陪著我。」','「說出來以後，好像沒那麼難過了。」'],
+    close:['慢慢地，心裡的烏雲散開了，露出小小的微笑。','有人陪著、有人聽著，難過就一點一點變輕了。','太陽又出來了，他知道自己會慢慢好起來。'],
+    moral:['難過是正常的，把心情說出來，就會慢慢變好。','傷心的時候，記得身邊有愛你的人陪著你。','哭一哭沒關係，眼淚會把難過帶走喔。'],
+    problemEn:[`lost a most-loved toy`,`had to say goodbye to a dear friend and felt so sad`,`worked hard at something that didn't work, and tears fell`,`looked at an empty seat and felt so lonely`],
+    tryEn:[`tried to hold back the tears, but they fell anyway`,`hid all alone, not wanting to talk to anyone`,`had a trembling lip and a heavy little heart`],
+    actionEn:[`had a little cry, and a dear friend gave a gentle hug`,`slowly learned that talking about sad feelings helps`,`wiped away the tears and said, "Tomorrow is a new day"`,`softly shared what was in the heart with a loved one`],
+    sayEn:[`"I feel so sad right now…"`,`"Thank you for staying with me."`,`"After saying it out loud, it doesn't hurt as much."`],
+    closeEn:[`Slowly, the clouds inside cleared, and a small smile peeked out. `,`With someone there to listen, the sadness grew lighter bit by bit. `,`The sun came out again, and somehow everything would be okay. `],
+    moralEn:[`It's okay to feel sad; talk about it and it slowly gets better.`,`When you're sad, remember the people who love you are near.`,`It's okay to cry; tears carry the sadness away.`]},
+  inspire:{problem:['看到一顆小種子在石頭縫裡努力發芽','遇到一位跌倒了又站起來的老爺爺','發現小螞蟻搬著大大的食物，跌倒又爬起','看見小鳥一次又一次練習飛翔'],
+    try:['本來覺得自己太小，什麼都做不到','試了一下下就想停下來','心裡有點懷疑：「我真的可以嗎？」'],
+    action:['看著看著，心裡亮起一個小小的念頭','決定也要像他們一樣，再試一次','學到了：再小的力量，也能做大大的事','咬咬牙，一步一步慢慢往前'],
+    say:['「我也要再試一次！」','「再小的我，也可以努力！」','「我做到了一點點，明天再多一點點！」'],
+    close:['這份小小的感動留在心裡，發出暖暖的光。','從那天起，他每天都努力一點點，慢慢長大。','那顆小種子，後來開出了好大好美的花。'],
+    moral:['只要不放棄，每個人都能慢慢變厲害。','每天努力一點點，就會變成大大的改變。','再小的你，也能發出大大的光。'],
+    problemEn:[`saw a tiny seed pushing up through a crack in a rock`,`met an old grandpa who fell down and stood right back up`,`watched a little ant carry huge food, falling and climbing again`,`saw a baby bird practice flying again and again`],
+    tryEn:[`felt too small to do anything at first`,`wanted to stop after just a little try`,`wondered quietly, "Can I really do this?"`],
+    actionEn:[`watched on, and a little spark lit up inside`,`decided to be just like them and try once more`,`learned that even small strength can do big things`,`set a brave little jaw and went on step by step`],
+    sayEn:[`"I'll try one more time too!"`,`"Even little me can work hard!"`,`"I did a little today — a little more tomorrow!"`],
+    closeEn:[`That little spark stayed in the heart, glowing warm. `,`From that day on, a little effort every day, growing bit by bit. `,`And that tiny seed later bloomed into a big, beautiful flower. `],
+    moralEn:[`Never give up, and anyone can grow amazing, little by little.`,`A little effort each day adds up to a great big change.`,`Even little you can shine a great big light.`]},
+  kind:{problem:['看見一個小朋友跌倒了，哇哇大哭','發現有人的點心掉到地上，沒得吃了','遇到一隻淋著雨、發抖的小動物','看到有人提著好重好重的東西'],
+    try:['一開始有點害羞，不敢上前','想幫忙，卻不知道該怎麼做','停下來看了看，心裡有點猶豫'],
+    action:['輕輕把對方扶起來，拍拍身上的灰塵','把自己的點心分了一半出去','脫下小外套，幫小動物擋擋雨','伸出手，一起把重重的東西抬起來'],
+    say:['「沒關係，我幫你！」','「這個分你一半，我們一起吃。」','「不要怕，有我在。」'],
+    close:['對方破涕為笑，謝謝他的好心。','一個小小的幫忙，讓整個地方都暖了起來。','大家看見了，也跟著一起幫忙。'],
+    moral:['善良就是看見別人需要時，願意伸出手。','分享一點點，就能讓別人好很多。','小小的好心，會像漣漪一樣傳開來。'],
+    problemEn:[`saw a child trip and burst into tears`,`saw someone's snack fall on the ground, all gone`,`met a little animal shivering in the rain`,`saw someone carrying something very, very heavy`],
+    tryEn:[`felt a little shy and didn't dare step up at first`,`wanted to help but wasn't sure how`,`stopped to look, hesitating just a little`],
+    actionEn:[`gently helped them up and brushed off the dust`,`shared half of a snack`,`took off a little coat to keep the animal dry`,`reached out to lift the heavy load together`],
+    sayEn:[`"It's okay, I'll help you!"`,`"Here's half for you — let's share."`,`"Don't be scared, I'm right here."`],
+    closeEn:[`Their tears turned into a smile, with a thank-you for the kindness. `,`One little act of helping warmed up the whole place. `,`Others saw it and joined in to help too. `],
+    moralEn:[`Kindness is reaching out when you see someone in need.`,`Share just a little, and it helps someone a lot.`,`A small kindness spreads out like ripples on water.`]},
+  friend:{problem:['和好朋友因為一點小事吵架了','一個人扛不動的大任務出現了','分成兩隊，誰也不肯讓誰','新朋友很想加入，卻不好意思開口'],
+    try:['本來氣呼呼的，互相不說話','各做各的，怎麼都做不好','還在生氣，臉鼓得圓圓的'],
+    action:['先說了一聲「對不起」，伸出小手','大家分工合作，你幫我、我幫你','主動牽起新朋友的手，邀他一起'],
+    say:['「我們還是好朋友，對不對？」','「一起來，我們一定做得到！」','「來，跟我們一起玩！」'],
+    close:['兩個人又笑著抱在一起，和好了。','大家合力，一下子就把事情完成了。','新朋友開心地加入，大家變成一大群好朋友。'],
+    moral:['好朋友吵架沒關係，先說對不起就會和好。','一個人很難，一群人一起就變簡單了。','多一個朋友，就多一份快樂。'],
+    problemEn:[`had a little quarrel with a best friend`,`faced a big job too heavy to do alone`,`split into two teams, with no one willing to give in`,`met a new friend too shy to ask to join`],
+    tryEn:[`stayed huffy at first, not talking to each other`,`worked separately and just couldn't get it right`,`was still cross, cheeks puffed up round`],
+    actionEn:[`said "I'm sorry" first and reached out a little hand`,`shared the work — you help me, I help you`,`took the new friend's hand and invited them in`],
+    sayEn:[`"We're still best friends, right?"`,`"Let's do it together — we can!"`,`"Come on, play with us!"`],
+    closeEn:[`The two laughed and hugged again, friends once more. `,`Working together, they finished it in no time. `,`The new friend joined happily, and everyone became one big group of friends. `],
+    moralEn:[`It's okay for friends to argue; say sorry first and you'll make up.`,`Alone is hard; all together it becomes easy.`,`One more friend means one more bit of joy.`]},
+  curious:{problem:['發現一扇從來沒打開過的小門','看到天上飄來一個奇怪的東西','聽見草叢裡有沙沙沙的聲音','撿到一個會發光、不停眨眼的小盒子'],
+    try:['有點想看，又有點不敢看','在原地猶豫了好久','繞著它走來走去，不知道是什麼'],
+    action:['鼓起好奇心，慢慢走近看個仔細','一邊觀察、一邊小心地問問題','輕輕打開，想知道裡面到底是什麼'],
+    say:['「這是什麼呀？好想知道！」','「我們一起來研究看看！」','「哇，原來是這樣，太神奇了！」'],
+    close:['謎底揭曉，原來是一個美麗的小驚喜。','他學到了一個新知識，開心得跳了起來。','原來世界上有這麼多好玩的事，等著被發現。'],
+    moral:['多問一個為什麼，世界就多一點好玩。','好奇心會帶你發現好多新奇的事。','勇敢去探索，就會學到新東西。'],
+    problemEn:[`found a little door that had never been opened`,`saw a strange thing drifting down from the sky`,`heard a rustle-rustle in the bushes`,`found a glowing little box that kept blinking`],
+    tryEn:[`half wanted to look, half didn't dare`,`hesitated on the spot for a long while`,`walked round and round it, unsure what it was`],
+    actionEn:[`gathered up courage and crept closer for a good look`,`watched carefully and asked gentle questions`,`opened it softly to see what was inside`],
+    sayEn:[`"What is this? I really want to know!"`,`"Let's figure it out together!"`,`"Wow, so that's how it is — amazing!"`],
+    closeEn:[`The mystery was revealed — a beautiful little surprise! `,`A brand-new thing was learned, and up came a happy jump. `,`It turned out the world is full of wonderful things waiting to be found. `],
+    moralEn:[`Ask one more "why," and the world gets a little more fun.`,`Curiosity will lead you to discover so many new things.`,`Be brave and explore, and you'll learn something new.`]},
+  fable:{problem:['遇到一個愛吹牛、說自己最厲害的傢伙','看到有人想一口氣拿走全部，結果什麼都抓不住','碰上一場「比快」的小比賽，大家都笑烏龜太慢','發現有人只顧眼前玩樂，忘了準備過冬'],
+    try:['一開始也好想跟著比快、比厲害','差點也想多拿一點、再多拿一點','心裡偷偷覺得「慢慢來一定會輸」'],
+    action:['不爭不搶，一步一腳印慢慢往前走','只拿自己需要的，把其餘的留給大家','提早一點一點地準備，一點都不偷懶','用實際行動，而不是用嘴巴證明自己'],
+    say:['「慢慢來，也會抵達終點喔！」','「夠用就好，不要太貪心。」','「現在多努力一點，以後就輕鬆一點。」'],
+    close:['結果慢慢走的反而先到了，大家都看呆了。','愛吹牛的紅了臉，腳踏實地的得到了大家的掌聲。','早早準備的，在冬天裡過得暖暖飽飽的。'],
+    moral:['一步一腳印，慢慢來也會贏。','貪多嚼不爛，夠用就是剛剛好。','平常多努力，需要時就不慌張。'],
+    problemEn:[`met a braggart who claimed to be the very best`,`saw someone try to grab everything at once, and end up holding nothing`,`ran into a little race, where everyone laughed the turtle was too slow`,`found someone busy only with play, forgetting to get ready for winter`],
+    tryEn:[`felt tempted at first to join the boasting and racing`,`almost wanted to take a little more, and a little more`,`secretly thought, "Going slow is sure to lose"`],
+    actionEn:[`didn't push or grab, but went on step by steady step`,`took only what was needed and left the rest for everyone`,`got ready early, a little at a time, never lazy`,`proved it with actions, not with words`],
+    sayEn:[`"Slow and steady still reaches the finish line!"`,`"Enough is plenty — don't be greedy."`,`"A little more effort now means an easier time later."`],
+    closeEn:[`In the end, the slow and steady one arrived first, and everyone was amazed. `,`The boaster turned red, while the steady one earned everyone's applause. `,`The one who prepared early spent the winter warm and full. `],
+    moralEn:[`Step by steady step, slow and sure can still win.`,`Bite off too much and you can't chew it; enough is just right.`,`Work a little extra in good times, and you won't panic when you need it.`]},
+  reflect:{problem:['不小心弄壞了別人的東西，心裡七上八下','因為一時生氣，對好朋友說了重話','把錯怪到別人身上，事後覺得怪怪的','答應的事情沒做到，讓大家等了好久'],
+    try:['一開始想假裝沒事，偷偷溜走','心裡有個小小的聲音，一直提醒著他','臉紅紅的，不太敢承認'],
+    action:['深呼吸，鼓起勇氣說「對不起，是我不對」','想一想自己哪裡做錯了，下次要怎麼改','主動把弄壞的東西修好、補起來','誠實地把事情的經過說清楚'],
+    say:['「對不起，是我做錯了。」','「我會改進，下次不會再這樣了。」','「謝謝你願意原諒我。」'],
+    close:['說出口以後，心裡的大石頭一下子放下了。','對方笑著原諒了他，兩個人比以前更要好。','從這件事，他學會了好好想一想自己。'],
+    moral:['做錯事不可怕，願意承認、改過才最棒。','每天想一想今天哪裡可以更好，就會慢慢長大。','一句真心的對不起，比一百個藉口更有力量。'],
+    problemEn:[`accidentally broke someone's thing, with a fluttery, uneasy heart`,`said harsh words to a best friend in a flash of anger`,`blamed a mistake on someone else, and felt odd about it afterward`,`didn't keep a promise, and kept everyone waiting a long time`],
+    tryEn:[`wanted to pretend nothing happened and sneak away at first`,`kept hearing a little voice inside as a reminder`,`turned red and hardly dared to admit it`],
+    actionEn:[`took a deep breath and bravely said, "I'm sorry, it was my fault"`,`thought about what went wrong and how to do better next time`,`went and fixed and mended what was broken`,`honestly told the whole story clearly`],
+    sayEn:[`"I'm sorry, I was the one who was wrong."`,`"I'll do better; it won't happen again."`,`"Thank you for forgiving me."`],
+    closeEn:[`After saying it out loud, the heavy stone in the heart lifted at once. `,`The other smiled and forgave, and the two were closer than before. `,`From this, a lesson was learned — to stop and think about oneself. `],
+    moralEn:[`Making a mistake isn't scary; admitting it and changing is the best of all.`,`Think each day about what could be better, and you'll grow little by little.`,`One heartfelt sorry is stronger than a hundred excuses.`]},
+  respect:{problem:['看見有人取笑別人和自己不一樣','遇到一位走得慢慢的老爺爺，後面的人很不耐煩','發現大家搶著說話，沒有人願意聽','碰到一個說不同語言、長得不一樣的新朋友'],
+    try:['一開始也跟著大家一起笑了','想插嘴，卻忘了別人還沒說完','覺得「不一樣」有點奇怪，愣在原地'],
+    action:['停下來，輕聲說「每個人都不一樣，這樣很好呀」','耐心地等老爺爺慢慢走，還上前扶他一把','安靜地聽別人把話說完，再換自己說','用微笑和對方打招呼，認識新朋友'],
+    say:['「你說，我聽，我們輪流好不好？」','「不一樣也很棒，我喜歡你的特別。」','「沒關係，我等你，不急。」'],
+    close:['被取笑的小朋友抬起頭，笑了，謝謝他的體貼。','大家學會了輪流和傾聽，吵架變少、笑容變多。','新朋友很快就融入了，大家成了好夥伴。'],
+    moral:['每個人都不一樣，尊重別人，世界更精彩。','先聽別人說完，再說自己的，就是一種尊重。','對人有禮貌、肯等待，是最美的好品格。'],
+    problemEn:[`saw someone make fun of another for being different`,`met an old grandpa walking slowly, with impatient people behind`,`found everyone rushing to talk, with no one willing to listen`,`met a new friend who spoke a different language and looked different`],
+    tryEn:[`went along and laughed with the others at first`,`wanted to butt in, forgetting others hadn't finished`,`thought "different" was a bit odd, and froze on the spot`],
+    actionEn:[`stopped and said softly, "Everyone's different, and that's wonderful"`,`waited patiently for the grandpa and stepped up to lend a hand`,`listened quietly until others finished, then took a turn`,`smiled and said hello, getting to know the new friend`],
+    sayEn:[`"You talk, I'll listen — let's take turns, okay?"`,`"Different is great too; I like what makes you special."`,`"It's okay, I'll wait — no rush."`],
+    closeEn:[`The teased child looked up and smiled, grateful for the kindness. `,`Everyone learned to take turns and listen — fewer quarrels, more smiles. `,`The new friend fit right in, and all became good companions. `],
+    moralEn:[`Everyone is different; respect others, and the world is more wonderful.`,`Letting others finish before you speak is a kind of respect.`,`Being polite and willing to wait is the loveliest character of all.`]},
+  confident:{problem:['要上台表演，腿一直發抖','聽到大家說「你一定做不到」，開始懷疑起自己','第一次嘗試新東西，怕做不好被笑','在比賽前，覺得別人都比自己厲害'],
+    try:['小聲說話、低著頭，不太敢看大家','差點就想說「我不要了」','手心冒汗，心裡一直打退堂鼓'],
+    action:['抬起頭、挺起胸，對自己說「我可以的！」','想起自己練習了好久，深呼吸走上台','告訴自己「就算失敗，也很勇敢」','把注意力放在「盡力」，而不是「怕輸」'],
+    say:['「我準備好了，我可以的！」','「我就是我，我很棒！」','「試試看，失敗了再來一次就好。」'],
+    close:['表演順利完成，台下響起好大好大的掌聲。','原來只要相信自己，就能發出意想不到的光。','他笑著說：「下次我還要挑戰更難的！」'],
+    moral:['相信自己，你比想像中更厲害。','抬起頭、挺起胸，勇敢就會跑出來。','盡力就好，相信自己的每一次嘗試。'],
+    problemEn:[`had to perform on stage, with knees that kept shaking`,`heard everyone say "you can't do it," and began to doubt`,`tried something new for the first time, afraid of being laughed at`,`felt before the contest that everyone else was better`],
+    tryEn:[`spoke softly and looked down, hardly daring to face everyone`,`almost wanted to say, "I give up"`,`had sweaty palms and kept wanting to back out`],
+    actionEn:[`lifted the head, stood tall, and said, "I can do it!"`,`remembered all that practice, took a deep breath, and stepped on stage`,`said inwardly, "Even if I fail, I'm still brave"`,`focused on doing a best, instead of a fear of losing`],
+    sayEn:[`"I'm ready — I can do this!"`,`"I am me, and I'm wonderful!"`,`"Give it a try; if it fails, just try again."`],
+    closeEn:[`The performance went smoothly, and big, big applause rang out. `,`It turned out that believing in yourself lets you shine in surprising ways. `,`With a smile came the words, "Next time I'll take on something even harder!" `],
+    moralEn:[`Believe in yourself; you're more amazing than you think.`,`Lift your head, stand tall, and bravery comes right out.`,`Just do your best, and trust every try you make.`]},
+  cherish:{problem:['把玩具玩膩了就隨手亂丟，結果再也找不到最愛的那一個','浪費了好多食物，看到別人沒得吃才覺得可惜','一直把家人的陪伴當成理所當然，有天才發現好珍貴','一直想要新的，卻忘了手上的已經很好'],
+    try:['一開始覺得「再買新的就好了呀」','嘟著嘴，還是想要更多更多','沒放在心上，隨手就丟在一旁'],
+    action:['把舊玩具擦乾淨、好好收好，重新喜歡上它','學會吃多少、拿多少，不再浪費','主動抱抱家人，說一聲「謝謝你陪我」','看看自己擁有的，發現原來已經好幸福'],
+    say:['「原來我已經擁有好多寶貝。」','「謝謝你，我會好好珍惜。」','「夠了夠了，我已經很幸福了。」'],
+    close:['那個舊玩具，又變成了他最喜歡的好朋友。','從此他懂得珍惜每一餐、每一個擁抱。','心裡滿滿的，原來幸福一直都在身邊。'],
+    moral:['擁有的時候好好珍惜，才不會失去了才後悔。','幸福不是擁有很多，而是珍惜手上的每一樣。','一聲謝謝、一個擁抱，都值得好好珍惜。'],
+    problemEn:[`tossed toys aside once bored, then lost the most-loved one for good`,`wasted lots of food, and only saw the pity when others had none`,`took family time for granted, until one day it felt so precious`,`always wanted something new, forgetting what was already so good`],
+    tryEn:[`thought at first, "I'll just buy a new one"`,`pouted and still wanted more and more`,`paid it no mind and tossed it aside`],
+    actionEn:[`wiped the old toy clean, put it away with care, and loved it anew`,`learned to take only as much as could be eaten, wasting no more`,`gave the family a hug and said, "Thank you for being with me"`,`looked at what was already there and found such happiness`],
+    sayEn:[`"I already have so many treasures."`,`"Thank you — I'll cherish this well."`,`"Enough, enough; I'm already so lucky."`],
+    closeEn:[`That old toy became a most-loved friend once again. `,`From then on came the joy of cherishing every meal and every hug. `,`The heart felt full — happiness had been near all along. `],
+    moralEn:[`Cherish what you have, so you won't regret it once it's gone.`,`Happiness isn't having a lot; it's treasuring each thing you hold.`,`A thank-you and a hug are well worth cherishing.`]},
+  struggle:{problem:['好想學會一件很難的事，可是一直學不會','想完成一個大大的夢想，路卻好長好長','練習了好多次，還是常常失敗','想做一件很厲害的作品，卻覺得自己不夠好'],
+    try:['練到手痠腳痠，好想放棄','看到別人很快就會了，心裡好著急','失敗了好多次，眼淚在眼眶裡打轉'],
+    action:['擦擦汗，告訴自己「再練一次就好」','把大目標切成一小步一小步，慢慢完成','每天都進步一點點，一直不放棄','跌倒了就爬起來，再試一遍'],
+    say:['「我一定要做到，再努力一下！」','「失敗沒關係，我會越來越厲害！」','「再一次，這次一定可以！」'],
+    close:['經過好多努力，他終於成功了，開心得跳了起來！','那個一直學不會的事，現在做得又快又好。','大大的夢想，被他一小步一小步走到了。'],
+    moral:['努力不會白費，堅持下去就會看見成果。','成功是一次又一次的不放棄堆出來的。','流過的汗水，會變成成功時甜甜的笑容。'],
+    problemEn:[`really wanted to learn something hard, but just couldn't get it`,`had a big, big dream, but the road was oh so long`,`practiced many times and still kept failing`,`wanted to make something amazing, but felt not good enough`],
+    tryEn:[`practiced till arms and legs ached, and almost gave up`,`saw others learn it so fast, and felt anxious inside`,`failed so many times, with tears welling up`],
+    actionEn:[`wiped off the sweat and said, "Just one more practice"`,`broke the big goal into little steps and finished them slowly`,`got a little better every day and never gave up`,`got right back up after each fall and tried again`],
+    sayEn:[`"I'm going to do it — just a little more effort!"`,`"Failing is okay; I'll keep getting better!"`,`"One more time — this time I can do it!"`],
+    closeEn:[`After so much effort, success came at last, with a happy leap! `,`The thing once too hard is now done quickly and well. `,`Step by little step, that great big dream was reached. `],
+    moralEn:[`Effort is never wasted; keep going and you'll see results.`,`Success is built from never giving up, time after time.`,`The sweat you give turns into the sweet smile of success.`]},
+  warmth:{problem:['看見有人在冷冷的天裡，縮在角落孤孤單單','發現家人累了一整天，回到家還沒吃晚餐','知道好朋友生病了，一個人躺在床上','看見下雨天有個小傢伙沒帶傘，淋成了落湯雞'],
+    try:['一開始不知道能幫上什麼忙','想說點什麼，又怕打擾到對方','站在旁邊，靜靜地看著'],
+    action:['端來一杯熱熱的牛奶，輕輕遞過去','蓋上一條暖暖的小毯子，陪在身邊','畫了一張卡片，寫上「早點好起來」','撐起小傘，和對方一起慢慢走回家'],
+    say:['「天冷了，多穿一點喔。」','「我在這裡陪你，不要怕。」','「回家囉，我們一起走。」'],
+    close:['一個小小的舉動，讓對方的心暖暖的。','那天晚上，全家人緊緊靠在一起，好幸福。','病好了的朋友說：「謝謝你一直陪著我。」'],
+    moral:['溫暖，就藏在那些小小的關心裡。','一句問候、一個陪伴，就能溫暖一整天。','把愛分給身邊的人，家就會暖暖的。'],
+    problemEn:[`saw someone curled in a corner on a cold day, looking lonely`,`found the family tired after a long day, with no dinner yet`,`learned a friend was sick, lying all alone in bed`,`saw a little one with no umbrella on a rainy day, soaked through`],
+    tryEn:[`wasn't sure how to help at first`,`wanted to say something, but feared being a bother`,`stood nearby, watching quietly`],
+    actionEn:[`brought a warm cup of milk and gently handed it over`,`tucked on a cozy little blanket and stayed close`,`drew a card that said, "Get well soon"`,`held up a little umbrella and walked home together`],
+    sayEn:[`"It's cold — put on something warm."`,`"I'm right here with you; don't be afraid."`,`"Let's go home, together."`],
+    closeEn:[`One small act warmed the other's whole heart. `,`That night, the whole family snuggled close, so happy. `,`The friend, all better, said, "Thank you for staying with me." `],
+    moralEn:[`Warmth hides in those tiny acts of caring.`,`One greeting, one bit of company, can warm a whole day.`,`Share your love with those near you, and home grows warm.`]},
+};
+// 沿路會遇到的好朋友（像「小蝌蚪找媽媽」一個一個出現，每次都有對白）
+const FRIENDS = [
+  {e:'🐿️',name:'小松鼠',give:'送來一顆暖暖的勇氣果', nameEn:`Squeaky the Squirrel`, giveEn:`brought a warm berry of courage`},
+  {e:'🦋',name:'花蝴蝶',give:'拍拍翅膀，在前面幫忙帶路', nameEn:`Fluttery the Butterfly`, giveEn:`flapped along to lead the way`},
+  {e:'🐢',name:'慢慢龜',give:'笑著說：「別急別急，一步一步來就好。」', nameEn:`Pokey the Turtle`, giveEn:`smiled and said, "No rush — one step at a time."`},
+  {e:'🐝',name:'嗡嗡蜂',give:'指出一條開滿小花的近路', nameEn:`Buzzy the Bee`, giveEn:`pointed out a shortcut full of little flowers`},
+  {e:'🦊',name:'聰明狐',give:'悄悄說了一個好點子', nameEn:`Clever the Fox`, giveEn:`whispered a great idea`},
+  {e:'🐰',name:'白白兔',give:'豎起長長的耳朵，幫忙聽聽看', nameEn:`Snowy the Bunny`, giveEn:`perked up two long ears to help listen`},
+  {e:'🦉',name:'貓頭鷹爺爺',give:'眨眨眼，給了一句聰明的提示', nameEn:`Grandpa Owl`, giveEn:`gave a wink and a clever little hint`},
+  {e:'🐻',name:'胖胖熊',give:'用大大的手掌拍拍他的肩膀打氣', nameEn:`Chubby the Bear`, giveEn:`gave a big, warm pat on the shoulder`},
+  {e:'🐦',name:'歌聲鳥',give:'唱了一首加油歌，把煩惱都唱跑了', nameEn:`Chirpy the Bird`, giveEn:`sang a cheer-up song that chased the worries away`},
+];
+// 開頭句型（中英各 7 種，索引對應）
+const OPENS = {
+  zh:[
+    (n,h,w)=>`從前從前，在${w}，住著${n}，${h}。`,
+    (n,h,w)=>`在${w}，有一位${n}，${h}。`,
+    (n,h,w)=>`你聽過${n}的故事嗎？他${h}，就住在${w}。`,
+    (n,h,w)=>`${w}，住著大家都很喜歡的${n}，${h}。`,
+    (n,h,w)=>`很久很久以前，${w}有一個${n}，${h}。`,
+    (n,h,w)=>`有一天，太陽暖暖地照著${w}，${n}起床了，他${h}。`,
+    (n,h,w)=>`${n}是${w}最特別的小寶貝，因為他${h}。`,
+  ],
+  en:[
+    (n,h,w)=>`Once upon a time, in ${w}, there lived ${n}, who was ${h}.`,
+    (n,h,w)=>`In ${w}, there was ${n}, who was ${h}.`,
+    (n,h,w)=>`Have you heard the story of ${n}? Always ${h}, and living in ${w}.`,
+    (n,h,w)=>`In ${w} lived ${n}, whom everyone loved — always ${h}.`,
+    (n,h,w)=>`A long, long time ago, in ${w}, there lived ${n}, who was ${h}.`,
+    (n,h,w)=>`One sunny morning in ${w}, ${n} woke up, bright and happy.`,
+    (n,h,w)=>`${n} was the most special little one in ${w}, because ${n} was ${h}.`,
+  ],
+};
+// 結尾句型（中英各 7 種，索引對應）
+const ENDINGS = {
+  zh:[
+    (n,p)=>`最後，${n}和${p}手牽著手，一起笑得好開心。`,
+    (n,p)=>`從那天起，${n}和${p}變成了最要好的朋友。`,
+    (n,p)=>`${n}抱了抱每一個朋友，輕輕說：「謝謝你們！」`,
+    (n,p)=>`天色慢慢暗了，${n}和${p}約好明天再一起玩。`,
+    (n,p)=>`大家圍成一個圓圈，又唱歌又跳舞，開心得不得了。`,
+    (n,p)=>`${n}回到家，把今天的冒險講給最愛的家人聽，笑咪咪地睡著了。`,
+    (n,p)=>`這一天，成了${n}心裡最閃亮、最溫暖的回憶。`,
+  ],
+  en:[
+    (n,p)=>`In the end, ${n} and ${p} held hands and laughed together happily.`,
+    (n,p)=>`From that day on, ${n} and ${p} became the very best of friends.`,
+    (n,p)=>`${n} hugged each friend and said softly, "Thank you all!"`,
+    (n,p)=>`As the sky grew dark, ${n} and ${p} promised to play again tomorrow.`,
+    (n,p)=>`Everyone made a big circle and sang and danced, happy as could be.`,
+    (n,p)=>`Back home, ${n} told the family all about the adventure and fell asleep with a smile.`,
+    (n,p)=>`That day became the brightest, warmest memory in ${n}'s heart.`,
+  ],
+};
+const rnd = a => a[Math.floor(Math.random()*a.length)];
+const pick = a => Math.floor(Math.random()*a.length);
+const shuffle = a => a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+const splitSentences = t => (t.match(/[^。！？]+[。！？]?/g) || [t]).map(s=>s.trim()).filter(Boolean);
+const splitEn = t => (t.match(/[^.!?]+[.!?]+["']?|\S[^.!?]*$/g) || [t]).map(s=>s.trim()).filter(Boolean);
+const joinEn = a => a.length<=1 ? (a[0]||'') : a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+
+/* 先把所有隨機選擇定下來，之後中文／英文版都用同一份「劇本」來產出 */
+function buildPlan(){
+  const arc=ARC[sel.attr], l=LOC[sel.loc];
+  return {
+    char:sel.char, attr:sel.attr, loc:sel.loc, act:sel.act,
+    openI:pick(OPENS.zh), whereI:pick(l.where), senseI:pick(l.sense), openerI:pick(ACT[sel.act].opener),
+    thingI:pick(l.thing), problemI:pick(arc.problem), tryI:pick(arc.try),
+    actionI:pick(arc.action), sayI:pick(arc.say), closeI:pick(arc.close),
+    moralI:pick(arc.moral), endI:pick(ENDINGS.zh),
+    friends:shuffle(FRIENDS.map((_,i)=>i)).slice(0,3),  // 沿路遇到 3 位好朋友
+  };
+}
+
+// 依照劇本 plan，產出指定語言（zh / en）的故事
+function renderStory(plan, lang){
+  const c=CHAR[plan.char], l=LOC[plan.loc], a=ACT[plan.act], arc=ARC[plan.attr];
+  const friends=plan.friends.map(i=>FRIENDS[i]);
+  const P=[];
+  if(lang==='en'){
+    const name=c.nameEn, who=c.shortEn, where=l.whereEn[plan.whereI];
+    P.push(OPENS.en[plan.openI](name, c.hintEn, where));
+    P.push(`${l.senseEn[plan.senseI]}. That day, ${who} ${a.clauseEn}. ${a.openerEn[plan.openerI]}`);
+    P.push(`Just then, ${l.thingEn[plan.thingI]} appeared. It turned out that ${who} ${arc.problemEn[plan.problemI]}.`);
+    P.push(`${who} ${arc.tryEn[plan.tryI]}, feeling a little worried, and set off to find some friends to help.`);
+    const steps=['Walking and walking','A little further along','After a few more steps'];
+    friends.forEach((f,i)=>{
+      P.push(`${steps[i]}, ${f.nameEn} appeared and asked kindly, "What's wrong?" ${who} shared the worry, and ${f.nameEn} ${f.giveEn}.`);
+    });
+    P.push(`With all these friends along, ${who} wasn't afraid anymore. ${who} ${arc.actionEn[plan.actionI]}, and happily called out: ${arc.sayEn[plan.sayI]}`);
+    const pals=joinEn(friends.map(f=>f.nameEn));
+    P.push(`${arc.closeEn[plan.closeI]}${ENDINGS.en[plan.endI](who, pals)}`);
+    return { lang:'en',
+      title:`${emojiOf('attr',plan.attr)} ${who}'s ${ATTR_EN[plan.attr]} Adventure`,
+      sentences:splitEn(P.join(' ')), moral:arc.moralEn[plan.moralI] };
+  } else {
+    const name=c.name, where=l.where[plan.whereI];
+    P.push(OPENS.zh[plan.openI](name, c.hint, where));
+    P.push(`${l.sense[plan.senseI]}。這一天，${name}${a.clause}，${a.opener[plan.openerI]}`);
+    P.push(`這時候，${l.thing[plan.thingI]}出現了，原來${name}${arc.problem[plan.problemI]}。`);
+    P.push(`${name}${arc.try[plan.tryI]}，心裡有點著急，於是決定去找朋友幫忙。`);
+    const steps=['走著走著','再往前走一點','又走了一小段路'];
+    friends.forEach((f,i)=>{
+      P.push(`${steps[i]}，${f.name}出現了，關心地問：「你怎麼了呀？」${name}把煩惱說了出來，${f.name}就${f.give}。`);
+    });
+    P.push(`有了大家的陪伴，${name}不再害怕了。他${arc.action[plan.actionI]}，開心地大聲說：${arc.say[plan.sayI]}`);
+    const pals=friends.map(f=>f.name).join('、');
+    P.push(`${arc.close[plan.closeI]}${ENDINGS.zh[plan.endI](name, pals)}`);
+    return { lang:'zh',
+      title:`${emojiOf('attr',plan.attr)}《${name}的${labelOf('attr',plan.attr)}之旅》`,
+      sentences:splitSentences(P.join('')), moral:arc.moral[plan.moralI] };
+  }
+}
+
+/* =================== 產生流程 =================== */
+let readSeq=[], sentenceStart=[], chars=[], wrappers=[], readLang='zh';
+let currentPlan=null, currentLang='zh';
+function generate(){
+  if(!checkTrialOrPay()) return;
+  _unlockAudio();
+  GROUPS.forEach(g=>{ if(!sel[g.key]) sel[g.key]=rnd(g.opts).id; });
+  document.querySelectorAll('.gen').forEach(b=>b.classList.remove('glow'));
+  renderOpts();
+  stopSpeak();
+  currentPlan=buildPlan();
+  currentLang='zh';
+  showStory(renderStory(currentPlan,'zh'));
+  addStoryCount();
+}
+function randomizeAll(){ GROUPS.forEach(g=> sel[g.key]=rnd(g.opts).id); renderOpts(); generate(); }
+
+// 中／英文切換：用同一份劇本重新產出，並挑對應的語音
+function toggleLang(){
+  if(!currentPlan) return;
+  stopSpeak();
+  currentLang = currentLang==='en' ? 'zh' : 'en';
+  showStory(renderStory(currentPlan, currentLang));
+  pickVoiceForLang(currentLang==='en'?'en':'zh');
+}
+
+// 把一段文字拆成逐字 span 加進 chars（英文用「字詞」包起來，避免單字被拆行）
+function appendChars(container, text, lang){
+  if(lang==='en'){
+    let word=null;
+    for(const ch of text){
+      if(ch===' '){
+        const sp=document.createElement('span'); sp.className='ch'; sp.textContent=' ';
+        container.appendChild(sp); chars.push(sp); word=null;
+      }else{
+        if(!word){ word=document.createElement('span'); word.className='word'; word._start=chars.length; container.appendChild(word); }
+        const sp=document.createElement('span'); sp.className='ch'; sp.textContent=ch;
+        sp._word=word; word.appendChild(sp); chars.push(sp);
+        word._end=chars.length;   // 半開區間 [_start,_end)，記在全域 chars 的索引
+      }
+    }
+  }else{
+    for(const ch of text){ const sp=document.createElement('span'); sp.className='ch'; sp.textContent=ch; container.appendChild(sp); chars.push(sp); }
+  }
+}
+
+function showStory(story){
+  currentStory=story;
+  const lang=story.lang||'zh'; readLang=lang;
+  document.getElementById('sceneWrap').innerHTML=sceneHTML(sel.loc, sel.char, CHAR[sel.char].e);
+  document.getElementById('storyTitle').textContent=story.title;
+  document.getElementById('langBtn').textContent = lang==='en' ? '🇹🇼 中文' : '🌍 英文';
+
+  // 逐字 span（卡拉OK 用）
+  readSeq=[...story.sentences, story.moral];
+  sentenceStart=[]; let acc=0;
+  readSeq.forEach(s=>{ sentenceStart.push(acc); acc+=s.length; });
+  chars=[]; wrappers=[];
+
+  const bodyEl=document.getElementById('storyBody'); bodyEl.innerHTML='';
+  story.sentences.forEach((s)=>{
+    const w=document.createElement('span'); w.className='sentence';
+    appendChars(w, s, lang);
+    bodyEl.appendChild(w); wrappers.push(w);
+  });
+  const moralEl=document.getElementById('moralTxt'); moralEl.innerHTML='';
+  appendChars(moralEl, story.moral, lang);
+  wrappers.push(moralEl);
+
+  document.getElementById('book').classList.add('show');
+  document.getElementById('voicebar').classList.add('show');
+  document.getElementById('resetDrawer').classList.add('show');
+  updateMobileBar();
+  document.getElementById('book').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// 點 LOGO：回到首頁最上方（選主角的區塊）
+function goHome(){ window.scrollTo({top:0,behavior:'smooth'}); }
+// 隱藏管理員功能：連按 Logo 5 下重置試玩紀錄
+let logoTaps=0, logoTimer=null;
+document.addEventListener('DOMContentLoaded',()=>{
+  const logo=document.getElementById('logoWrap');
+  if(!logo) return;
+  logo.addEventListener('click',()=>{
+    logoTaps++;
+    clearTimeout(logoTimer);
+    logoTimer=setTimeout(()=>logoTaps=0,2000);
+    if(logoTaps>=5){
+      logoTaps=0;
+      localStorage.removeItem('storyCount');
+      localStorage.removeItem('storyUnlocked');
+      updateTrialBadge();
+      alert('已重置試玩紀錄！');
+    }
+  });
+});
+// 右側抽屜：展開／收合
+function toggleResetDrawer(){ document.getElementById('resetDrawer').classList.toggle('open'); }
+// 重設故事：收起故事，清空選擇，跳回一開始選主角的畫面
+function resetStory(){
+  stopSpeak();
+  document.querySelectorAll('.gen').forEach(b=>b.classList.remove('glow'));
+  document.getElementById('book').classList.remove('show');
+  document.getElementById('voicebar').classList.remove('show');
+  document.getElementById('resetDrawer').classList.remove('show','open');
+  sel.char=null; sel.attr=null; sel.loc=null; sel.act=null;
+  currentPlan=null; currentStory=null;
+  renderOpts();
+  updateMobileBar();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// 手機底部固定列：沒故事時「變出故事」；有故事時換成「開始念／停／再變」
+function updateMobileBar(){
+  const bar=document.getElementById('mobileBar'); if(!bar) return;
+  const hasStory=document.getElementById('book').classList.contains('show');
+  // 唸故事／換語言已移到故事標題下方，底部固定列只負責「變出故事」
+  const errGen=`this.closest('button').classList.remove('img-btn');this.outerHTML='🎲 '+this.alt`;
+  const errRand=`this.closest('button').classList.remove('img-btn');this.outerHTML='🎰 隨機'`;
+  bar.innerHTML = hasStory
+    ? `<button class="big gen img-btn" onclick="generate()"><img src="assets/theme/btn-main.png" alt="再變一個故事" onerror="${errGen}"></button>`
+    : `<button class="big gen img-btn" onclick="generate()"><img src="assets/theme/btn-main.png" alt="變出一個故事！" onerror="${errGen}"></button>
+       <button class="big rand img-btn" onclick="randomizeAll()"><img src="assets/theme/btn-rand.png" alt="隨機" onerror="${errRand}"></button>`;
+}
+// 捲到語音設定區時，讓底部固定列自動滑開，不擋住整塊設定
+function setupBarAutoHide(){
+  const bar=document.getElementById('mobileBar'), watch=document.getElementById('voicebar');
+  if(!bar||!watch||!('IntersectionObserver' in window)) return;
+  new IntersectionObserver(es=>es.forEach(e=>bar.classList.toggle('hide', e.isIntersecting)),
+    {threshold:0.1}).observe(watch);
+}
+
+/* =================== 場景：自訂圖片優先，找不到才用內建插圖 ===================
+   把圖片放進這兩個資料夾，檔名要跟選項代號一樣（小寫）：
+     assets/backgrounds/<背景代號>.png   例：海底 sea.png、城堡 castle.png
+     assets/characters/<角色代號>.png    例：公主 princess.png、美人魚 mermaid.png
+   背景代號：forest sea space castle snow candy magic cloud
+   角色代號：princess girl beggar prince animal robot dino wizard astronaut mermaid superhero fairy chef scientist insect
+   ── 有提供圖片就用圖片（背景滿版、人物站在前面）；沒有就自動用原本的內建插圖／emoji。 */
+function sceneHTML(loc, charId, charE){
+  // 先試 .png，找不到再試 .svg，都沒有才退回內建插圖／emoji
+  const tryNext = "(this.dataset.t?this.remove():(this.dataset.t=1,this.src=this.dataset.svg))";
+  const bgPng=`assets/backgrounds/${loc}.png`,  bgSvg=`assets/backgrounds/${loc}.svg`;
+  const chPng=`assets/characters/${charId}.png`, chSvg=`assets/characters/${charId}.svg`;
+  return `<div class="sceneBox">
+    <div class="scene">${sceneSVG(loc, '')}</div>
+    <img class="sceneBg" src="${bgPng}" data-svg="${bgSvg}" alt="" loading="lazy" onerror="${tryNext}">
+    <div class="sceneCharEmoji">${charE}</div>
+    <img class="sceneChar" src="${chPng}" data-svg="${chSvg}" alt="" loading="lazy"
+         onload="var e=this.parentElement.querySelector('.sceneCharEmoji'); if(e) e.style.display='none';"
+         onerror="${tryNext}">
+  </div>`;
+}
+
+/* =================== 內建插圖 SVG（找不到背景圖時的後備）=================== */
+function sceneSVG(loc, charE){
+  const sky={forest:['#bfe9c4','#7fcf9a'],
+    sea:['#7fd0ff','#2a83c9'],
+    space:['#3a2f6e','#15123a'],castle:['#cdd7ff','#9fb0ff'],snow:['#e6f3ff','#bfdcff'],
+    candy:['#ffd6ec','#ff9fd6'],magic:['#cdb6f0','#8b6fd1'],cloud:['#eaf6ff','#cfe9ff']}[loc]
+    ||['#cfe6ff','#a7cfff'];
+  const deco={
+    forest:`<circle cx="330" cy="48" r="26" fill="#ffe27a"/><polygon points="60,150 90,90 120,150" fill="#3a9d63"/><polygon points="100,150 130,80 160,150" fill="#2f8a55"/><polygon points="250,150 280,95 310,150" fill="#3a9d63"/>`,
+    sea:`<circle cx="300" cy="40" r="8" fill="#ffffff88"/><circle cx="320" cy="70" r="5" fill="#ffffff88"/><circle cx="70" cy="50" r="6" fill="#ffffff88"/><circle cx="55" cy="80" r="4" fill="#ffffff88"/>`,
+    space:`<circle cx="60" cy="40" r="2.5" fill="#fff"/><circle cx="120" cy="70" r="2" fill="#fff"/><circle cx="300" cy="55" r="2.5" fill="#fff"/><circle cx="345" cy="95" r="2" fill="#fff"/><circle cx="210" cy="34" r="2" fill="#fff"/><circle cx="335" cy="44" r="20" fill="#ffe27a"/>`,
+    castle:`<rect x="150" y="62" width="80" height="78" fill="#cbbfe6"/><rect x="138" y="50" width="22" height="90" fill="#b7a9da"/><rect x="220" y="50" width="22" height="90" fill="#b7a9da"/><polygon points="138,50 149,30 160,50" fill="#8f7fc0"/><polygon points="220,50 231,30 242,50" fill="#8f7fc0"/><rect x="180" y="100" width="20" height="40" rx="10" fill="#7a6aa8"/>`,
+    snow:`<circle cx="325" cy="46" r="20" fill="#fff3c4"/><circle cx="70" cy="55" r="3.5" fill="#fff"/><circle cx="125" cy="38" r="3" fill="#fff"/><circle cx="255" cy="52" r="3" fill="#fff"/><path d="M0 145 Q95 105 190 145 T380 145 Z" fill="#ffffff"/>`,
+    candy:`<circle cx="320" cy="46" r="22" fill="#fff3b0"/><rect x="60" y="90" width="10" height="50" fill="#ff7aa8"/><circle cx="65" cy="85" r="16" fill="#ffffff"/><rect x="140" y="100" width="10" height="40" fill="#7ad0ff"/><circle cx="145" cy="95" r="14" fill="#ffffff"/>`,
+    magic:`<rect x="160" y="55" width="60" height="85" fill="#9f86c9"/><polygon points="160,55 190,25 220,55" fill="#6f53a8"/><circle cx="190" cy="38" r="5" fill="#ffe27a"/><circle cx="60" cy="40" r="2" fill="#fff"/><circle cx="300" cy="50" r="2" fill="#fff"/>`,
+    cloud:`<ellipse cx="90" cy="110" rx="50" ry="22" fill="#ffffff"/><ellipse cx="140" cy="100" rx="40" ry="20" fill="#ffffff"/><ellipse cx="280" cy="115" rx="55" ry="24" fill="#ffffff"/><ellipse cx="320" cy="100" rx="35" ry="18" fill="#ffffff"/>`,
+  }[loc]||'';
+  const ground={forest:'#8fd49e',sea:'#3a6ea5',
+    space:'#241a4d',castle:'#c2b3e0',snow:'#eef6ff',
+    candy:'#ffd1ec',magic:'#b29bd9',cloud:'#eaf6ff'}[loc]||'#9ce0b4';
+  return `<svg class="scene" viewBox="0 0 380 170" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient></defs>
+    <rect width="380" height="170" fill="url(#sk)"/>
+    ${deco}
+    <rect y="140" width="380" height="30" fill="${ground}"/>
+    ${charE?`<text x="190" y="122" font-size="64" text-anchor="middle">${charE}</text>`:''}
+  </svg>`;
+}
+
+/* =================== 選項 UI =================== */
+// 主角：公主、王子固定排最前面，其餘每次載入隨機排列
+let activeTab=0;
+const orderCache={};
+// 選項顯示順序（主角固定公主／王子在前，其餘隨機；只算一次，避免切換時跳動）
+function displayOpts(g){
+  if(orderCache[g.key]) return orderCache[g.key];
+  let arr;
+  if(g.key!=='char'){ arr=g.opts; }
+  else{
+    const head=['princess','prince'];
+    const front=head.map(id=>g.opts.find(o=>o.id===id)).filter(Boolean);
+    const rest=shuffle(g.opts.filter(o=>!head.includes(o.id)));
+    arr=[...front,...rest];
+  }
+  orderCache[g.key]=arr; return arr;
+}
+function switchTab(i){ activeTab=i; renderGroups(); }
+function renderGroups(){
+  // 上方頁籤：顯示分類名稱＋目前已選的摘要
+  const tabs=GROUPS.map((g,i)=>{
+    const chosen=sel[g.key];
+    const num=('00'+(i+1)).slice(-3);
+    const imgSrc=`assets/theme/but${num}${i===activeTab?'b':''}.png`;
+    const errHandler=`this.closest('.tab').classList.add('tab-no-img');this.insertAdjacentHTML('afterend','<span class=\\'tab-name\\'>${g.icon} ${g.short}</span>');this.remove()`;
+    const pick=chosen
+      ? `<span class="tab-pick">${emojiOf(g.key,chosen)} ${labelOf(g.key,chosen)}</span>`
+      : ``;
+    return `<button class="tab${i===activeTab?' active':''}${chosen?' done':''}" onclick="switchTab(${i})">
+      <img src="${imgSrc}" class="tab-bg-img" alt="${g.short}" loading="lazy" onerror="${errHandler}">
+      ${pick}</button>`;
+  }).join('');
+  // 下方面板：只顯示目前頁籤這一組的選項
+  const g=GROUPS[activeTab];
+  const tryImg="(this.dataset.t?this.remove():(this.dataset.t=1,this.src=this.dataset.svg))";
+  const attrImgAlias={confident:'confidence',friend:'friendship'};
+  const grid=displayOpts(g).map(o=>{
+    const inner=(g.key==='char'||g.key==='loc')
+      ?`<img class="opt-img" src="assets/characters/${o.id}0.png" data-svg="assets/characters/${o.id}.svg" alt="" loading="lazy" onerror="${tryImg}"><div class="e opt-fb">${o.e}</div>`
+      :(g.key==='attr'||g.key==='act')
+        ?`<img class="opt-img" src="assets/characters/${attrImgAlias[o.id]||o.id}.png" alt="" loading="lazy" onerror="this.remove()"><div class="e opt-fb">${o.e}</div>`
+        :`<div class="e">${o.e}</div>`;
+    return `<div class="opt${sel[g.key]===o.id?' sel':''}" data-g="${g.key}" data-id="${o.id}" onclick="choose('${g.key}','${o.id}')">${inner}<div class="l">${o.l}</div></div>`;
+  }).join('');
+  const tabImgs={char:'who.png',attr:'what.png',loc:'where.png',act:'when.png'};
+  const tabImg=tabImgs[g.key];
+  const titleHtml=tabImg
+    ?`<img src="assets/theme/${tabImg}" alt="${g.title}" style="max-height:56px;max-width:100%;object-fit:contain;display:block;margin:0 auto 10px;" onerror="this.outerHTML='<h2 style=text-align:center>${g.title}</h2>'">`
+    :`<h2 style="text-align:center">${g.title}</h2>`;
+  document.getElementById('groups').innerHTML=
+    `<div class="tabs">${tabs}</div><div class="card optpanel">${titleHtml}<div class="opts">${grid}</div></div>`;
+  updateScenePreview();
+}
+function renderOpts(){ renderGroups(); }   // 相容舊呼叫（generate／randomizeAll）
+function choose(g,id){
+  sel[g]=id;
+  // 選好就自動跳到下一個還沒選的分類；若後面都選完了就留在原地讓你繼續調整
+  const idx=GROUPS.findIndex(x=>x.key===g);
+  const next=GROUPS.findIndex((x,k)=>k>idx && !sel[x.key]);
+  activeTab=next!==-1?next:idx;
+  renderGroups();
+  // 四個分類全選完 → 自動帶到「變出一個故事」按鈕 + 發光提示
+  if(GROUPS.every(x=>sel[x.key])){
+    document.querySelectorAll('.gen').forEach(b=>b.classList.add('glow'));
+    const ctrl=document.querySelector('.controls');
+    if(ctrl && ctrl.offsetParent!==null) ctrl.scrollIntoView({behavior:'smooth',block:'center'});
+    else window.scrollTo({top:0,behavior:'smooth'});
+  }else{
+    document.querySelectorAll('.gen').forEach(b=>b.classList.remove('glow'));
+  }
+}
+// 主畫面即時預覽：選了主角／場景就立刻把人物放進場景（與故事插圖同一套疊圖）
+function updateScenePreview(){
+  const stage=document.getElementById('previewStage'), cap=document.getElementById('previewCap');
+  if(!stage||!cap) return;
+  if(!sel.char && !sel.loc){
+    stage.style.display='none';
+    cap.textContent='先選一個主角和一個場景，這裡會立刻把人物放進場景裡給你看～';
+    return;
+  }
+  stage.style.display='block';
+  stage.innerHTML=sceneHTML(sel.loc, sel.char, sel.char?CHAR[sel.char].e:'');
+  const cl=sel.char?labelOf('char',sel.char):'（還沒選主角）';
+  const ll=sel.loc?labelOf('loc',sel.loc):'（還沒選場景）';
+  cap.textContent=`${cl} ＋ ${ll}`;
+}
+
+/* =================== 音訊解鎖（手機必備）=================== */
+// 手機瀏覽器（尤其 LINE / FB / IG 內建瀏覽器）要求「使用者手勢」才能播音訊。
+// 在首次 touch/click 時播放靜音，之後所有 Audio.play() 就暢通了。
+let _audioUnlocked=false;
+const _unlockAudio=(function(){
+  let ctx=null;
+  function doUnlock(){
+    if(_audioUnlocked) return;
+    _audioUnlocked=true;
+    // 1) Web Audio API unlock（iOS Safari 必要）
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;
+      if(AC){
+        ctx=ctx||new AC();
+        if(ctx.state==='suspended') ctx.resume();
+        const buf=ctx.createBuffer(1,1,22050);
+        const src=ctx.createBufferSource();
+        src.buffer=buf; src.connect(ctx.destination); src.start(0);
+      }
+    }catch(e){}
+    // 2) HTML5 Audio unlock（Android WebView 必要）— 用 _sharedAudio 來授權
+    try{
+      if(typeof _sharedAudio!=='undefined'){
+        _sharedAudio.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
+        _sharedAudio.volume=0;
+        _sharedAudio.play().then(()=>{_sharedAudio.pause();_sharedAudio.volume=1;}).catch(()=>{});
+      } else {
+        const a=new Audio();
+        a.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
+        a.volume=0;
+        a.play().then(()=>a.pause()).catch(()=>{});
+      }
+    }catch(e){}
+    // 3) speechSynthesis unlock
+    try{
+      const s=window.speechSynthesis;
+      if(s&&!s._unlocked){
+        const u=new SpeechSynthesisUtterance('');
+        u.volume=0; s.speak(u); s._unlocked=true;
+      }
+    }catch(e){}
+  }
+  return doUnlock;
+})();
+['touchstart','touchend','click','pointerdown'].forEach(ev=>{
+  document.addEventListener(ev, _unlockAudio, {once:false, passive:true});
+});
+
+/* =================== 語音 + 卡拉OK 反白 =================== */
+const synth=window.speechSynthesis;
+let voices=[], voiceList=[], chosenVoice=null, rate=1.0;
+// 只保留：國語（台灣）、English（普通話／大陸語音一律排除）
+function voiceCat(v){
+  const s=v.lang+' '+v.name;
+  // 明確排除大陸普通話
+  if(/zh[-_]?CN|zh[-_]?Hans|cmn|Xiaoxiao|Yunyang|Yunxi|Huihui|Kangkang|Yaoyao|China|Mandarin/i.test(s)) return null;
+  // 台灣國語
+  if(/zh[-_]?TW|zh[-_]?Hant|Taiwan|Yating|Hanhan|Zhiwei|HsiaoChen|HsiaoYu|Meijia/i.test(s)) return 'tw';
+  // 英文
+  if(/^en|English/i.test(s)) return 'en';
+  // 泛中文（手機可能只標 zh，不分 TW/CN）→ 當台灣用
+  if(/^zh/i.test(v.lang)) return 'tw';
+  return null;
+}
+const CAT_LABEL={tw:'🇹🇼 國語（台灣）',en:'🇬🇧 English'};
+const CAT_ORDER={tw:0,en:1};
+function cleanName(v){ return v.name.replace(/Microsoft|Google|Online|Natural|\(.*?\)|-/g,'').trim()||v.lang; }
+// 擬真（神經網路）語音：名字含 Natural / Neural / Online，多半在 Edge 出現
+function isNatural(v){ return /Natural|Neural|Online/i.test(v.name); }
+// 語音評分：分數越高音質越好、越接近擬真女聲，用來排序＋挑預設
+function voiceScore(v){
+  const n=v.name; let s=0;
+  if(/Neural|Natural/i.test(n)) s+=100;          // 神經網路擬真（最自然）
+  else if(/Online/i.test(n))   s+=80;            // 線上擬真
+  if(/HsiaoChen|HsiaoYu|曉臻|曉雨/i.test(n)) s+=40; // 微軟台灣神經女聲
+  else if(/Yating|雅婷/i.test(n))            s+=25; // 其他台灣女聲
+  else if(/Hanhan|Zhiwei|曉維/i.test(n))      s+=15;
+  if(/Google/i.test(n)) s+=10;
+  return s;
+}
+const _isMobile=/iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
+// 偵測 App 內建瀏覽器（LINE／FB／IG／微信等 WebView）
+function isInApp(){
+  const u=navigator.userAgent||'';
+  return /Line\/|FBAN|FBAV|FB_IAB|Instagram|MicroMessenger|; wv\)|musical_ly|TikTok/i.test(u);
+}
+function setTtsWarn(){
+  const w=document.getElementById('ttsWarn');
+  // 手機一律走線上語音，不需要警告
+  if(_isMobile){ w.style.display='none'; return; }
+  w.innerHTML='😅 這個瀏覽器好像沒有中文／英文語音，建議用 <b>Chrome／Edge</b>（電腦）打開喔！';
+  w.style.display='block';
+}
+function loadVoices(){
+  if(!synth) return;
+  const s=document.getElementById('voiceSel');
+  // 手機一律用線上語音，不需要載入本機語音清單
+  if(_isMobile){
+    s.innerHTML='<option>🔊 線上語音（自動）</option>';
+    document.getElementById('ttsWarn').style.display='none';
+    return;
+  }
+  voices=synth.getVoices();
+  voiceList=voices.map((v,i)=>({v,i,c:voiceCat(v),nat:isNatural(v)})).filter(x=>x.c);
+  const twNamed=voiceList.filter(x=>x.c==='tw' && /國語|臺灣|台灣/.test(x.v.name));
+  if(twNamed.length) voiceList=voiceList.filter(x=> x.c!=='tw' || twNamed.includes(x));
+  voiceList.sort((a,b)=> CAT_ORDER[a.c]-CAT_ORDER[b.c] || voiceScore(b.v)-voiceScore(a.v));
+  const recIdx=new Set();
+  ['tw','en'].forEach(c=>{ const top=voiceList.find(x=>x.c===c); if(top) recIdx.add(top.i); });
+  if(voiceList.length){
+    s.innerHTML=voiceList.map(x=>`<option value="${x.i}">${recIdx.has(x.i)?'👑 推薦｜':''}${x.nat?'✨ ':''}${CAT_LABEL[x.c]}｜${cleanName(x.v)}${x.nat?'（擬真）':''}</option>`).join('');
+    chosenVoice=voices[voiceList[0].i];
+    s.onchange=e=>chosenVoice=voices[+e.target.value];
+    const hasZh=voiceList.some(x=>x.c==='tw');
+    document.getElementById('ttsWarn').style.display=hasZh?'none':'block';
+  }else if(voices.length){
+    s.innerHTML='<option value="0">（系統預設語音）</option>';
+    chosenVoice=voices[0];
+    setTtsWarn();
+  }else{
+    s.innerHTML='<option>🔊 線上語音（自動）</option>';
+    setTtsWarn();
+  }
+}
+// 依語言自動挑語音：優先「擬真」語音；中文挑國語（台灣）、英文挑 English
+function pickVoiceForLang(lang){
+  if(!voiceList.length) return;
+  const c = lang==='en' ? 'en' : 'tw';
+  const found = voiceList.find(x=>x.c===c && x.nat) || voiceList.find(x=>x.c===c) || voiceList[0];
+  chosenVoice=voices[found.i];
+  document.getElementById('voiceSel').value=found.i;
+}
+if(synth){
+  loadVoices();
+  if(!_isMobile){
+    // 桌機：偵測語音清單變動＋輪詢重試
+    synth.onvoiceschanged=loadVoices;
+    let tries=0;
+    const vt=setInterval(()=>{
+      if((synth.getVoices()||[]).length){ loadVoices(); clearInterval(vt); }
+      else if(++tries>50) clearInterval(vt);
+    },300);
+  }
+}else{
+  // 完全沒有 speechSynthesis：手機仍可用線上語音
+  const s=document.getElementById('voiceSel');
+  s.innerHTML='<option>🔊 線上語音（自動）</option>';
+  if(!_isMobile) setTtsWarn();
+}
+
+function setRate(el,r){ rate=r; document.querySelectorAll('.chip[data-rate]').forEach(c=>c.classList.remove('sel')); el.classList.add('sel'); }
+let curCursorEl=null;
+function clearCursor(){
+  document.querySelectorAll('.cursor').forEach(c=>c.classList.remove('cursor'));
+  curCursorEl=null;
+}
+// 只在游標單位（字／單字）改變時才換 class，避免每幀重觸發跳動畫
+function setCursorEl(el){
+  if(curCursorEl===el) return;
+  if(curCursorEl) curCursorEl.classList.remove('cursor');
+  curCursorEl=el;
+  if(el) el.classList.add('cursor');
+}
+function clearHL(){ chars.forEach(c=>c.classList.remove('read','cursor')); clearCursor(); wrappers.forEach(w=>w.classList.remove('active')); }
+function highlightUpTo(n){
+  // 英文：以「整個單字」為游標單位；中文：以單一字為單位
+  const cw = (readLang==='en' && chars[n]) ? chars[n]._word : null;
+  const readUntil = cw ? cw._start : n;          // 唸到的單字「之前」才上已讀色
+  for(let k=0;k<readUntil;k++) chars[k]&&chars[k].classList.add('read');
+  if(cw){
+    for(let k=cw._start;k<cw._end;k++) chars[k]&&chars[k].classList.remove('read'); // 目前單字整顆白字跳，不留已讀色
+    setCursorEl(cw);
+  }else{
+    const el=chars[n];
+    setCursorEl(el && el.textContent!==' ' ? el : null);  // 空白不當游標
+  }
+}
+function fillSentence(i){ const end=sentenceStart[i]+readSeq[i].length; for(let k=0;k<end;k++) chars[k]&&chars[k].classList.add('read'); clearCursor(); }
+let rafId=null, learnedMs={zh:0,en:0};
+// iOS Safari 會在 ~15 秒後靜默暫停語音，定時 resume() 保持播放
+let iosKeepAlive=null;
+function startKeepAlive(){
+  stopKeepAlive();
+  if(!synth) return;
+  iosKeepAlive=setInterval(()=>{ if(synth.speaking && !synth.paused) synth.resume(); },5000);
+}
+function stopKeepAlive(){ if(iosKeepAlive){ clearInterval(iosKeepAlive); iosKeepAlive=null; } }
+
+/* ---------- 判斷是否需要備援語音 ---------- */
+let fallbackAudio=null, speakAborted=false;
+function needsFallback(){
+  if(!synth) return true;
+  // WebView（LINE/FB/IG）：Google TTS 幾乎一定被擋，直接用原生 speechSynthesis
+  if(_isMobile && isInApp()) return false;
+  // 其他手機瀏覽器：用 Google Translate TTS（音質好、穩定）
+  if(_isMobile) return true;
+  const v=synth.getVoices(); if(!v||!v.length) return true;
+  return false;
+}
+
+/* ---------- Google Translate TTS 備援（所有瀏覽器都能播 <audio>）---------- */
+function gTtsUrl(text, lang){
+  const tl=lang==='en'?'en':'zh-TW';
+  return 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl='+tl+'&q='+encodeURIComponent(text);
+}
+// 重用同一個 Audio 元素（手機上比每次 new Audio() 更穩定，能延續手勢授權鏈）
+const _sharedAudio=(function(){
+  const a=document.createElement('audio');
+  a.setAttribute('playsinline',''); a.setAttribute('webkit-playsinline','');
+  a.preload='auto'; a.style.display='none';
+  document.body.appendChild(a);
+  return a;
+})();
+function _speakFallback(){
+  let i=0;
+  const audio=_sharedAudio;
+  fallbackAudio=audio;
+  (function next(){
+    if(speakAborted||i>=readSeq.length){
+      if(!speakAborted){ chars.forEach(c=>c.classList.add('read')); clearCursor(); }
+      return;
+    }
+    const text=readSeq[i], base=sentenceStart[i], idx=i, len=text.length;
+    wrappers.forEach(w=>w.classList.remove('active'));
+    wrappers[idx]&&wrappers[idx].classList.add('active');
+    audio.playbackRate=rate;
+    let startT=0, shownIdx=-1;
+    const msBase=readLang==='en'?70:240;
+    let msPerChar=msBase/(rate||1);
+    let resolved=false, synthTried=false;
+    function advance(){
+      if(resolved) return; resolved=true;
+      cancelAnimationFrame(rafId); fillSentence(idx); i++; next();
+    }
+    function place(ci){
+      ci=Math.max(0,Math.min(ci,len-1));
+      if(ci<=shownIdx) return;
+      shownIdx=ci; highlightUpTo(base+ci);
+    }
+    function tick(now){
+      if(speakAborted) return;
+      if(!startT) startT=now;
+      const est=Math.floor((now-startT)/msPerChar);
+      place(Math.min(est,len-1));
+      if(est<len) rafId=requestAnimationFrame(tick);
+    }
+    // Google TTS 失敗時，用原生 speechSynthesis 當最後備援
+    function trySynth(){
+      if(resolved||speakAborted||synthTried) return;
+      synthTried=true;
+      if(!synth){ advance(); return; }
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang=readLang==='en'?'en-US':'zh-TW';
+      u.rate=rate; u.pitch=1.05;
+      u.onstart=()=>{
+        startT=0; shownIdx=-1; place(0);
+        cancelAnimationFrame(rafId); rafId=requestAnimationFrame(tick);
+      };
+      u.onboundary=(e)=>{
+        if(e.charIndex!=null) place(Math.min(e.charIndex,len-1));
+      };
+      u.onend=advance;
+      u.onerror=advance;
+      synth.speak(u);
+      setTimeout(()=>{ if(!resolved&&!synth.speaking) advance(); },4000);
+    }
+    audio.onplay=()=>{
+      startT=0; shownIdx=-1; place(0);
+      cancelAnimationFrame(rafId); rafId=requestAnimationFrame(tick);
+      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len/(rate||1);
+    };
+    audio.onloadedmetadata=()=>{
+      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len/(rate||1);
+    };
+    audio.onended=advance;
+    audio.onerror=()=>{ trySynth(); };
+    audio.src=gTtsUrl(text, readLang);
+    audio.load();
+    audio.play().catch(()=>{
+      // play() 被瀏覽器擋住 → 嘗試原生語音合成
+      trySynth();
+    });
+  })();
+}
+
+/* ---------- 主要 speak()：自動選原生 or 備援 ---------- */
+let _webviewSynthFailed=false;
+function speak(){
+  if(readSeq.length===0) return;
+  _unlockAudio();
+  speakAborted=false; clearHL();
+  // WebView 且 synth 已知失敗 → 還是走 Google TTS 碰運氣
+  if(_isMobile && isInApp() && _webviewSynthFailed){
+    if(fallbackAudio){ fallbackAudio.pause(); fallbackAudio.removeAttribute('src'); fallbackAudio.load(); fallbackAudio=null; }
+    _speakFallback();
+    return;
+  }
+  // 備援路徑：用 Google Translate TTS <audio>（WebView/無語音瀏覽器）
+  if(needsFallback()){
+    if(fallbackAudio){ fallbackAudio.pause(); fallbackAudio.removeAttribute('src'); fallbackAudio.load(); fallbackAudio=null; }
+    _speakFallback();
+    return;
+  }
+  // 原生 speechSynthesis 路徑
+  if(!chosenVoice||!voices.length) loadVoices();
+  synth.cancel();
+  if(_isMobile && isInApp()){
+    // WebView：不延遲，保持手勢授權鏈
+    if(!speakAborted) _speakChain();
+  } else {
+    setTimeout(()=>{ if(!speakAborted) _speakChain(); },120);
+  }
+}
+function _speakChain(){
+  let i=0;
+  startKeepAlive();
+  (function next(){
+    if(speakAborted){ stopKeepAlive(); return; }
+    if(i>=readSeq.length){ stopKeepAlive(); chars.forEach(c=>c.classList.add('read')); clearCursor(); return; }
+    const u=new SpeechSynthesisUtterance(readSeq[i]);
+    if(chosenVoice){ u.voice=chosenVoice; u.lang=chosenVoice.lang; } else u.lang='zh-TW';
+    u.rate=rate;
+    const base=sentenceStart[i], idx=i, len=readSeq[i].length;
+    u.pitch=1.05;
+    const base0=learnedMs[readLang]||(/^en/i.test(u.lang)?70:240);
+    let msPerChar=base0/(rate||1);
+    let startT=0, startWall=0, shownIdx=-1, lastBoundary=-1, boundaryCount=0;
+    let safetyTimer=null, ended=false;
+    function done(){
+      if(ended) return; ended=true;
+      clearTimeout(safetyTimer); cancelAnimationFrame(rafId);
+      const dur=performance.now()-startWall;
+      if(dur>250&&len>0){ const perChar=dur/len*(rate||1);
+        learnedMs[readLang]=learnedMs[readLang]?learnedMs[readLang]*0.5+perChar*0.5:perChar; }
+      fillSentence(idx); i++; next();
+    }
+    function place(ci){
+      ci=Math.max(0,Math.min(ci,len-1));
+      if(ci<=shownIdx) return;
+      shownIdx=ci; highlightUpTo(base+ci);
+    }
+    function tick(now){
+      if(!startT) startT=now;
+      const elapsed=now-startT;
+      const est=Math.floor(elapsed/msPerChar);
+      let cap;
+      if(boundaryCount>0) cap=lastBoundary;
+      else if(elapsed<450) cap=0;
+      else cap=len-1;
+      place(Math.min(est,cap));
+      rafId=requestAnimationFrame(tick);
+    }
+    u.onstart=()=>{
+      wrappers.forEach(w=>w.classList.remove('active'));
+      wrappers[idx]&&wrappers[idx].classList.add('active');
+      startT=0; startWall=performance.now(); shownIdx=-1; lastBoundary=-1; boundaryCount=0; place(0);
+      cancelAnimationFrame(rafId); rafId=requestAnimationFrame(tick);
+      const maxMs=Math.max(len*msPerChar*1.8+2000,6000);
+      safetyTimer=setTimeout(()=>{ if(!ended&&!speakAborted) done(); },maxMs);
+    };
+    u.onboundary=(e)=>{
+      if(e.charIndex==null) return;
+      const ci=Math.min(e.charIndex,len-1);
+      boundaryCount++; lastBoundary=ci; place(ci);
+    };
+    u.onend=()=>done();
+    u.onerror=()=>done();
+    synth.speak(u);
+    setTimeout(()=>{
+      if(!startWall&&!ended&&!speakAborted){
+        // synth 完全沒啟動 → WebView 中顯示提示
+        if(_isMobile && isInApp() && i===0){
+          _webviewSynthFailed=true;
+          _showWebviewHint();
+        }
+        done();
+      }
+    },3000);
+  })();
+}
+function stopSpeak(){
+  speakAborted=true; stopKeepAlive();
+  if(synth) synth.cancel();
+  if(fallbackAudio){ fallbackAudio.pause(); fallbackAudio.removeAttribute('src'); fallbackAudio.load(); fallbackAudio=null; }
+  cancelAnimationFrame(rafId); clearHL();
+}
+
+/* =================== 我的故事書（收藏/列印）=================== */
+let currentStory=null;
+function loadShelf(){ try{ return JSON.parse(localStorage.getItem('storybook')||'[]'); }catch(e){ return []; } }
+function saveStory(){
+  if(!currentStory) return;
+  const shelf=loadShelf();
+  shelf.unshift({...currentStory, loc:sel.loc, char:sel.char, charE:CHAR[sel.char].e, plan:currentPlan, ts:Date.now()});
+  localStorage.setItem('storybook', JSON.stringify(shelf.slice(0,30)));
+  renderShelf();
+  const b=event.target; const old=b.textContent; b.textContent='⭐ 已收藏!'; setTimeout(()=>b.textContent=old,1200);
+}
+function renderShelf(){
+  const shelf=loadShelf(); const box=document.getElementById('shelf');
+  box.classList.toggle('show', shelf.length>0);
+  document.getElementById('shelfList').innerHTML = shelf.length? shelf.map((s,i)=>`
+    <div class="saved">
+      <div class="st" onclick="openStory(${i})">${s.charE} ${s.title.replace(/^[^《]*/,'')||s.title}
+        <small>${new Date(s.ts).toLocaleDateString()}</small></div>
+      <button class="open" onclick="openStory(${i})">翻開</button>
+      <button class="del" onclick="delStory(${i})">刪</button>
+    </div>`).join('') : '<div class="empty">還沒有收藏的故事～按 ⭐ 收藏喜歡的故事吧！</div>';
+}
+function openStory(i){
+  const s=loadShelf()[i]; if(!s) return;
+  sel.loc=s.loc||sel.loc;
+  currentPlan=s.plan||null;            // 有劇本才能中英切換
+  currentLang=s.lang||'zh';
+  showStory({title:s.title, sentences:s.sentences, moral:s.moral, lang:currentLang});
+  // 還原插圖：用收藏時記的背景與角色（有自訂圖片就會自動套用）
+  document.getElementById('sceneWrap').innerHTML=sceneHTML(s.loc||sel.loc, s.char||sel.char, s.charE||'🧒');
+}
+function delStory(i){
+  const shelf=loadShelf(); shelf.splice(i,1);
+  localStorage.setItem('storybook', JSON.stringify(shelf)); renderShelf();
+}
+
+
+/* =================== WebView 偵測與提示 =================== */
+function _openInChrome(){
+  const url=location.href.replace(/[?#].*$/,'');
+  const host=url.replace(/^https?:\/\//,'');
+  if(/android/i.test(navigator.userAgent)){
+    // 雙重嘗試：googlechromes + intent
+    location.href='googlechromes://'+host;
+    setTimeout(()=>{
+      location.href='intent://'+host+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(url)+';end';
+    },500);
+  } else {
+    location.href='googlechromes://'+host;
+    setTimeout(()=>{ window.open(url,'_blank'); },500);
+  }
+}
+// WebView：head 裡的腳本已嘗試自動跳轉，這裡負責顯示備用橫幅
+if(_isMobile && isInApp()){
+  // 若還留在此頁，1.2 秒後顯示橫幅
+  setTimeout(()=>{
+    document.getElementById('wvBanner').style.display='block';
+  },1200);
+}
+function _showWebviewHint(){
+  if(document.querySelector('.wv-toast')) return;
+  const t=document.createElement('div');
+  t.className='wv-toast';
+  t.innerHTML='🔇 此瀏覽器無法播放語音<br><button class="wv-open-btn" onclick="_openInChrome()">👉 用 Chrome 開啟</button><br><span style="font-size:12px;opacity:.7;">或點右下角 ⋯ →「預設瀏覽器開啟」</span>';
+  document.body.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .5s'; setTimeout(()=>t.remove(),600); },8000);
+}
+
+/* =================== 初始化 =================== */
+renderGroups();
+renderShelf();
+updateMobileBar();
+setupBarAutoHide();
+updateTrialBadge();
+</script>
+</body>
+</html>

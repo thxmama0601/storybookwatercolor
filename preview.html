@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🎨 角色 × 背景 預覽</title>
+<style>
+  :root{--rose:#ff6fae;--rose-d:#d4516b;--cream:#fff7f1;--line:#f0e3d6;--ink:#5a4a3f;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:"PingFang TC","Microsoft JhengHei",system-ui,sans-serif;color:var(--ink);
+    background:linear-gradient(160deg,#fff0f6,#eef6ff);padding:18px 14px 60px;}
+  h1{font-size:24px;text-align:center;color:var(--rose-d);margin:6px 0 4px;}
+  .sub{text-align:center;color:#9a8a7f;font-size:14px;margin-bottom:20px;}
+  .card{max-width:520px;margin:0 auto 26px;background:#fff;border-radius:22px;padding:16px 18px;
+    box-shadow:0 14px 34px rgba(150,120,90,.16);}
+  .pickers{display:flex;gap:10px;margin-bottom:14px;}
+  .pickers label{flex:1;font-size:13px;font-weight:700;color:var(--rose-d);}
+  select{width:100%;margin-top:5px;padding:9px 10px;border-radius:12px;border:2px solid var(--line);
+    background:var(--cream);font-size:15px;color:var(--ink);}
+  /* 與正式網頁相同的疊圖樣式 */
+  .sceneBox{position:relative;width:100%;aspect-ratio:380/170;overflow:hidden;border-radius:16px;background:#cfe6ff;}
+  .sceneBg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;}
+  .sceneChar{position:absolute;left:50%;bottom:0;transform:translateX(-50%);height:82%;width:auto;max-width:60%;
+    object-fit:contain;object-position:bottom;z-index:3;filter:drop-shadow(0 6px 8px rgba(0,0,0,.25));}
+  .cap{text-align:center;margin-top:10px;font-weight:700;}
+  h2{max-width:980px;margin:26px auto 12px;font-size:18px;color:var(--rose-d);}
+  .grid{max-width:980px;margin:0 auto;display:grid;gap:12px;
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
+  .tile{background:#fff;border-radius:16px;padding:8px;box-shadow:0 8px 20px rgba(150,120,90,.12);text-align:center;}
+  .tile .bgwrap{position:relative;width:100%;aspect-ratio:380/170;border-radius:10px;overflow:hidden;background:#e9eef6;}
+  .tile .bgwrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .tile .chwrap{height:120px;display:flex;align-items:flex-end;justify-content:center;}
+  .tile .chwrap img{height:100%;width:auto;object-fit:contain;filter:drop-shadow(0 4px 5px rgba(0,0,0,.2));}
+  .tile small{display:block;margin-top:6px;font-weight:700;color:var(--ink);}
+  .tile code{color:#9a8a7f;font-weight:400;font-size:11px;}
+</style>
+</head>
+<body>
+  <h1>🎨 角色 × 背景 預覽</h1>
+  <div class="sub">選不同組合看疊圖效果；下方是全部素材畫廊。換成同名 <b>.png</b> 會自動覆蓋示意圖。</div>
+
+  <div class="card">
+    <div class="pickers">
+      <label>👤 角色<select id="selChar"></select></label>
+      <label>🎬 背景<select id="selBg"></select></label>
+    </div>
+    <div class="sceneBox" id="stage"></div>
+    <div class="cap" id="cap"></div>
+  </div>
+
+  <h2>🎬 背景（10）</h2>
+  <div class="grid" id="bgGrid"></div>
+
+  <h2>👤 角色（15）</h2>
+  <div class="grid" id="chGrid"></div>
+
+<script>
+const CHARS=[['princess','公主'],['girl','少女'],['beggar','小乞丐'],['prince','王子'],['animal','小動物'],
+  ['robot','機器人'],['dino','小恐龍'],['wizard','小巫師'],['astronaut','太空人'],['mermaid','美人魚'],
+  ['superhero','小英雄'],['fairy','小精靈'],['chef','小廚師'],['scientist','小科學家'],['insect','昆蟲']];
+const BGS=[['forest','森林'],['park','公園'],['home','家裡'],['school','學校'],['sea','海底'],
+  ['space','外太空'],['castle','城堡'],['farm','農場'],['snow','雪國'],['beach','海邊']];
+
+// 先試 .png，找不到再試 .svg（與正式網頁一致）
+function imgTag(cls, dir, id){
+  return `<img class="${cls}" src="assets/${dir}/${id}.png" data-svg="assets/${dir}/${id}.svg" alt=""
+    onerror="this.dataset.t?this.remove():(this.dataset.t=1,this.src=this.dataset.svg)">`;
+}
+function fill(sel,list){ sel.innerHTML=list.map(([id,l])=>`<option value="${id}">${l}</option>`).join(''); }
+fill(selChar,CHARS); fill(selBg,BGS);
+
+function render(){
+  const c=selChar.value, b=selBg.value;
+  stage.innerHTML = imgTag('sceneBg','backgrounds',b) + imgTag('sceneChar','characters',c);
+  const cl=CHARS.find(x=>x[0]===c)[1], bl=BGS.find(x=>x[0]===b)[1];
+  cap.textContent = `${cl} ＋ ${bl}`;
+}
+selChar.onchange=render; selBg.onchange=render;
+// 預設：公主 + 海底
+selChar.value='princess'; selBg.value='sea'; render();
+
+// 畫廊
+bgGrid.innerHTML=BGS.map(([id,l])=>
+  `<div class="tile"><div class="bgwrap">${imgTag('','backgrounds',id)}</div><small>${l} <code>${id}</code></small></div>`).join('');
+chGrid.innerHTML=CHARS.map(([id,l])=>
+  `<div class="tile"><div class="chwrap">${imgTag('','characters',id)}</div><small>${l} <code>${id}</code></small></div>`).join('');
+</script>
+</body>
+</html>

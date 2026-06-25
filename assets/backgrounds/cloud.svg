@@ -1,0 +1,15 @@
+<svg viewBox="0 0 380 170" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="spg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#3a2f6e"/><stop offset="1" stop-color="#15123a"/></linearGradient></defs>
+  <rect width="380" height="170" fill="url(#spg)"/>
+  <g fill="#ffffff">
+    <circle cx="40" cy="36" r="2"/><circle cx="90" cy="60" r="1.5"/><circle cx="140" cy="30" r="2"/>
+    <circle cx="200" cy="50" r="1.5"/><circle cx="260" cy="28" r="2"/><circle cx="60" cy="110" r="1.5"/>
+    <circle cx="150" cy="120" r="2"/><circle cx="320" cy="120" r="1.5"/><circle cx="300" cy="80" r="2"/>
+  </g>
+  <g fill="#ffe27a"><polygon points="110,86 113,94 121,94 115,99 117,107 110,102 103,107 105,99 99,94 107,94"/></g>
+  <!-- 行星 -->
+  <circle cx="320" cy="48" r="26" fill="#ff9a5c"/><ellipse cx="320" cy="48" rx="40" ry="9" fill="none" stroke="#ffd166" stroke-width="4" opacity=".8"/>
+  <!-- 月球 -->
+  <circle cx="60" cy="64" r="18" fill="#dfe3ef"/><circle cx="54" cy="60" r="3" fill="#c2c8d8"/><circle cx="66" cy="70" r="2.5" fill="#c2c8d8"/>
+</svg>

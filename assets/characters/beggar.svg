@@ -1,0 +1,16 @@
+<svg viewBox="0 0 160 300" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="80" cy="288" rx="40" ry="8" fill="#000" opacity=".12"/>
+  <!-- 破舊長袍 -->
+  <path d="M80 150 L116 282 Q80 292 44 282 Z" fill="#b08a5a"/>
+  <path d="M64 110 Q80 102 96 110 L100 150 Q80 158 60 150 Z" fill="#9c7a4a"/>
+  <!-- 補丁 -->
+  <rect x="70" y="200" width="16" height="14" fill="#7fae8c" opacity=".8"/>
+  <rect x="92" y="232" width="14" height="12" fill="#c98a5a" opacity=".8"/>
+  <path d="M64 118 Q44 140 50 168" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <path d="M96 118 Q116 140 110 168" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <circle cx="80" cy="76" r="30" fill="#f4d2ad"/>
+  <path d="M50 70 Q58 46 80 46 Q102 46 110 70 Q98 58 80 58 Q62 58 50 70 Z" fill="#4a3a28"/>
+  <circle cx="70" cy="78" r="3.2" fill="#3a2a1a"/><circle cx="90" cy="78" r="3.2" fill="#3a2a1a"/>
+  <circle cx="62" cy="86" r="3.6" fill="#e0a07e" opacity=".6"/><circle cx="98" cy="86" r="3.6" fill="#e0a07e" opacity=".6"/>
+  <path d="M74 92 Q80 89 86 92" stroke="#a86a4a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+</svg>

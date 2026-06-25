@@ -1,0 +1,31 @@
+<svg viewBox="0 0 160 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- 透明背景去背公主示意圖 -->
+  <ellipse cx="80" cy="288" rx="46" ry="8" fill="#000000" opacity=".12"/>
+  <!-- 裙子 -->
+  <path d="M80 150 L132 280 Q80 296 28 280 Z" fill="#ff8fc4"/>
+  <path d="M80 150 L108 280 Q80 290 52 280 Z" fill="#ffb3d8"/>
+  <!-- 腰帶 -->
+  <rect x="60" y="146" width="40" height="12" rx="6" fill="#ffd166"/>
+  <!-- 上身 -->
+  <path d="M64 110 Q80 100 96 110 L100 150 Q80 158 60 150 Z" fill="#ff6fae"/>
+  <!-- 手臂 -->
+  <path d="M64 118 Q44 140 50 168" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <path d="M96 118 Q116 140 110 168" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <!-- 頭髮（後） -->
+  <path d="M48 70 Q44 120 56 140 L104 140 Q116 120 112 70 Z" fill="#7a4a23"/>
+  <!-- 臉 -->
+  <circle cx="80" cy="74" r="30" fill="#ffe0c2"/>
+  <!-- 瀏海 -->
+  <path d="M52 66 Q60 44 80 44 Q100 44 108 66 Q96 56 80 56 Q64 56 52 66 Z" fill="#8a5528"/>
+  <!-- 眼睛＋腮紅＋嘴 -->
+  <circle cx="70" cy="76" r="3.4" fill="#3a2a1a"/>
+  <circle cx="90" cy="76" r="3.4" fill="#3a2a1a"/>
+  <circle cx="62" cy="84" r="4" fill="#ff9db5" opacity=".7"/>
+  <circle cx="98" cy="84" r="4" fill="#ff9db5" opacity=".7"/>
+  <path d="M74 88 Q80 93 86 88" stroke="#d4516b" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <!-- 皇冠 -->
+  <polygon points="58,44 66,28 74,42 80,24 86,42 94,28 102,44" fill="#ffd34d"/>
+  <circle cx="80" cy="30" r="3.5" fill="#ff6fae"/>
+  <circle cx="66" cy="34" r="2.6" fill="#7fd0ff"/>
+  <circle cx="94" cy="34" r="2.6" fill="#7fd0ff"/>
+</svg>

@@ -1,0 +1,20 @@
+<svg viewBox="0 0 160 300" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="80" cy="288" rx="40" ry="8" fill="#000" opacity=".12"/>
+  <rect x="64" y="214" width="14" height="66" rx="6" fill="#5a6273"/><rect x="82" y="214" width="14" height="66" rx="6" fill="#5a6273"/>
+  <!-- 白袍 -->
+  <path d="M60 116 Q80 108 100 116 L106 228 Q80 238 54 228 Z" fill="#ffffff" stroke="#e6e6ee" stroke-width="2"/>
+  <line x1="80" y1="120" x2="80" y2="226" stroke="#dcdce6" stroke-width="2"/>
+  <rect x="86" y="150" width="12" height="16" rx="2" fill="#7fd0ff"/>
+  <path d="M60 118 Q40 140 46 168" stroke="#ffffff" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <path d="M100 118 Q120 140 114 168" stroke="#ffffff" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <!-- 試管 -->
+  <g><rect x="106" y="150" width="10" height="26" rx="4" fill="#bff0d8" stroke="#7fd0c0" stroke-width="2"/>
+     <rect x="106" y="164" width="10" height="12" rx="0" fill="#3ddc84"/></g>
+  <circle cx="80" cy="78" r="28" fill="#ffe0c2"/>
+  <path d="M52 70 Q60 46 80 46 Q100 46 108 70 Q96 58 80 58 Q64 58 52 70 Z" fill="#3a3a3a"/>
+  <!-- 護目鏡 -->
+  <g><circle cx="71" cy="80" r="8" fill="#cdeeff" stroke="#9ab8c8" stroke-width="2"/><circle cx="91" cy="80" r="8" fill="#cdeeff" stroke="#9ab8c8" stroke-width="2"/>
+     <line x1="79" y1="80" x2="83" y2="80" stroke="#9ab8c8" stroke-width="2"/></g>
+  <circle cx="71" cy="80" r="3" fill="#3a2a1a"/><circle cx="91" cy="80" r="3" fill="#3a2a1a"/>
+  <path d="M74 94 Q80 99 86 94" stroke="#d4516b" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+</svg>

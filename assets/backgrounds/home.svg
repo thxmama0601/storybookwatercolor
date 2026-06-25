@@ -1,0 +1,16 @@
+<svg viewBox="0 0 380 170" xmlns="http://www.w3.org/2000/svg">
+  <rect width="380" height="170" fill="#ffe9d4"/>
+  <rect y="120" width="380" height="50" fill="#e6c79a"/>
+  <line x1="0" y1="120" x2="380" y2="120" stroke="#d6b483" stroke-width="2"/>
+  <!-- 窗戶 -->
+  <rect x="48" y="36" width="84" height="66" rx="6" fill="#bfe4ff" stroke="#e0b98a" stroke-width="5"/>
+  <line x1="90" y1="36" x2="90" y2="102" stroke="#e0b98a" stroke-width="4"/>
+  <line x1="48" y1="69" x2="132" y2="69" stroke="#e0b98a" stroke-width="4"/>
+  <circle cx="112" cy="52" r="7" fill="#fff3b0"/>
+  <!-- 掛畫 -->
+  <rect x="250" y="40" width="60" height="46" rx="4" fill="#fff6e6" stroke="#caa06a" stroke-width="4"/>
+  <polygon points="262,78 278,58 290,72 300,62 300,78" fill="#9bdcae"/><circle cx="270" cy="54" r="5" fill="#ffd166"/>
+  <!-- 盆栽 -->
+  <g><rect x="180" y="100" width="22" height="20" rx="3" fill="#d98b5a"/>
+     <circle cx="191" cy="92" r="13" fill="#5fc486"/><circle cx="184" cy="98" r="8" fill="#6fce95"/><circle cx="198" cy="97" r="8" fill="#6fce95"/></g>
+</svg>

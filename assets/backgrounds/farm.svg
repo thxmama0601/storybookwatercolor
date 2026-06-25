@@ -1,0 +1,16 @@
+<svg viewBox="0 0 380 170" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="fmg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#d4f0ff"/><stop offset="1" stop-color="#a7e0ff"/></linearGradient></defs>
+  <rect width="380" height="170" fill="url(#fmg)"/>
+  <circle cx="330" cy="40" r="20" fill="#ffe27a"/>
+  <g fill="#ffffff" opacity=".85"><ellipse cx="90" cy="38" rx="22" ry="11"/><ellipse cx="112" cy="42" rx="16" ry="9"/></g>
+  <rect y="120" width="380" height="50" fill="#9bd17a"/>
+  <path d="M0 120 q60 -10 120 0 t120 0 t140 0" stroke="#7cbb5c" stroke-width="3" fill="none"/>
+  <!-- 穀倉 -->
+  <rect x="60" y="78" width="92" height="42" fill="#e08a5a"/>
+  <polygon points="50,78 106,46 162,78" fill="#c0623a"/>
+  <rect x="96" y="92" width="22" height="28" fill="#fff6e6"/>
+  <line x1="96" y1="92" x2="118" y2="120" stroke="#c0623a" stroke-width="2"/><line x1="118" y1="92" x2="96" y2="120" stroke="#c0623a" stroke-width="2"/>
+  <!-- 圍欄 -->
+  <g stroke="#fff" stroke-width="4"><line x1="210" y1="104" x2="210" y2="124"/><line x1="240" y1="104" x2="240" y2="124"/><line x1="270" y1="104" x2="270" y2="124"/><line x1="200" y1="110" x2="280" y2="110"/></g>
+</svg>

@@ -1,0 +1,33 @@
+<svg viewBox="0 0 380 170" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="seaG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9fe0ff"/>
+      <stop offset="1" stop-color="#1f6fb0"/>
+    </linearGradient>
+  </defs>
+  <rect width="380" height="170" fill="url(#seaG)"/>
+  <!-- 陽光射線 -->
+  <polygon points="60,0 100,0 150,170 90,170" fill="#ffffff" opacity=".10"/>
+  <polygon points="170,0 200,0 230,170 180,170" fill="#ffffff" opacity=".08"/>
+  <!-- 氣泡 -->
+  <circle cx="300" cy="40" r="9" fill="#ffffff" opacity=".5"/>
+  <circle cx="322" cy="66" r="5" fill="#ffffff" opacity=".5"/>
+  <circle cx="80" cy="55" r="7" fill="#ffffff" opacity=".5"/>
+  <circle cx="64" cy="84" r="4" fill="#ffffff" opacity=".5"/>
+  <circle cx="250" cy="30" r="4" fill="#ffffff" opacity=".5"/>
+  <!-- 海草 -->
+  <path d="M40 150 q-8 -30 4 -55 q-10 26 6 55" fill="#2f9e6b"/>
+  <path d="M52 150 q8 -34 -2 -60 q12 28 10 60" fill="#37b87c"/>
+  <path d="M335 150 q-10 -28 2 -52 q-8 24 8 52" fill="#2f9e6b"/>
+  <!-- 海底沙地 -->
+  <path d="M0 150 q95 -22 190 0 t190 0 V170 H0 Z" fill="#f0d79a"/>
+  <ellipse cx="120" cy="160" rx="14" ry="5" fill="#e6c986"/>
+  <ellipse cx="270" cy="162" rx="18" ry="6" fill="#e6c986"/>
+  <!-- 小魚 -->
+  <g fill="#ff9a5c">
+    <circle cx="210" cy="70" r="6"/><polygon points="204,70 196,64 196,76"/>
+  </g>
+  <g fill="#ffd166">
+    <circle cx="150" cy="100" r="5"/><polygon points="155,100 162,95 162,105"/>
+  </g>
+</svg>

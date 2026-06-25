@@ -1,0 +1,22 @@
+<svg viewBox="0 0 160 300" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="80" cy="288" rx="38" ry="8" fill="#000" opacity=".12"/>
+  <!-- 身體 -->
+  <ellipse cx="80" cy="220" rx="40" ry="50" fill="#ffffff" stroke="#ecd9e6" stroke-width="2"/>
+  <!-- 腳 -->
+  <ellipse cx="62" cy="276" rx="14" ry="9" fill="#ffffff" stroke="#ecd9e6" stroke-width="2"/>
+  <ellipse cx="98" cy="276" rx="14" ry="9" fill="#ffffff" stroke="#ecd9e6" stroke-width="2"/>
+  <!-- 手 -->
+  <ellipse cx="44" cy="214" rx="11" ry="18" fill="#ffffff" stroke="#ecd9e6" stroke-width="2"/>
+  <ellipse cx="116" cy="214" rx="11" ry="18" fill="#ffffff" stroke="#ecd9e6" stroke-width="2"/>
+  <!-- 頭 -->
+  <circle cx="80" cy="120" r="42" fill="#ffffff" stroke="#ecd9e6" stroke-width="2"/>
+  <!-- 耳朵 -->
+  <ellipse cx="62" cy="56" rx="11" ry="34" fill="#ffffff" stroke="#ecd9e6" stroke-width="2"/>
+  <ellipse cx="98" cy="56" rx="11" ry="34" fill="#ffffff" stroke="#ecd9e6" stroke-width="2"/>
+  <ellipse cx="62" cy="60" rx="5" ry="22" fill="#ffc0d8"/><ellipse cx="98" cy="60" rx="5" ry="22" fill="#ffc0d8"/>
+  <!-- 臉 -->
+  <circle cx="68" cy="116" r="4" fill="#3a2a1a"/><circle cx="92" cy="116" r="4" fill="#3a2a1a"/>
+  <circle cx="58" cy="126" r="5" fill="#ffb3cf" opacity=".7"/><circle cx="102" cy="126" r="5" fill="#ffb3cf" opacity=".7"/>
+  <ellipse cx="80" cy="128" rx="5" ry="3.5" fill="#ff9db5"/>
+  <path d="M80 131 Q74 138 68 134 M80 131 Q86 138 92 134" stroke="#c98aa0" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

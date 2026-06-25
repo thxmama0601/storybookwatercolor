@@ -1,0 +1,37 @@
+<svg viewBox="0 0 160 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- 透明背景去背美人魚示意圖 -->
+  <ellipse cx="80" cy="288" rx="44" ry="8" fill="#000000" opacity=".12"/>
+  <!-- 魚尾 -->
+  <path d="M80 150 Q104 200 86 250 Q112 262 80 286 Q48 262 74 250 Q56 200 80 150 Z" fill="#2fbf9b"/>
+  <path d="M80 286 Q60 270 50 282 M80 286 Q100 270 110 282" stroke="#2fbf9b" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <!-- 鱗片 -->
+  <g fill="#5fe0c0" opacity=".8">
+    <circle cx="74" cy="180" r="5"/><circle cx="86" cy="180" r="5"/>
+    <circle cx="78" cy="200" r="5"/><circle cx="90" cy="200" r="5"/>
+    <circle cx="76" cy="222" r="5"/><circle cx="88" cy="222" r="5"/>
+  </g>
+  <!-- 上身 -->
+  <path d="M66 116 Q80 108 94 116 L96 152 Q80 160 64 152 Z" fill="#ffd9b8"/>
+  <!-- 貝殼比基尼 -->
+  <path d="M66 128 q8 8 14 2 q6 6 14 -2 q-4 12 -14 12 q-10 0 -14 -12 Z" fill="#ff8fc4"/>
+  <!-- 手臂 -->
+  <path d="M66 122 Q46 142 52 170" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <path d="M94 122 Q114 142 108 170" stroke="#ffd9b8" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <!-- 頭髮（後） -->
+  <path d="M46 72 Q40 150 60 168 L70 150 Q56 120 60 80 Z" fill="#ff7a59"/>
+  <path d="M114 72 Q120 150 100 168 L90 150 Q104 120 100 80 Z" fill="#ff7a59"/>
+  <!-- 臉 -->
+  <circle cx="80" cy="78" r="30" fill="#ffe0c2"/>
+  <!-- 瀏海 -->
+  <path d="M50 70 Q58 46 80 46 Q102 46 110 70 Q98 58 80 58 Q62 58 50 70 Z" fill="#ff7a59"/>
+  <!-- 眼睛＋腮紅＋嘴 -->
+  <circle cx="70" cy="80" r="3.4" fill="#3a2a1a"/>
+  <circle cx="90" cy="80" r="3.4" fill="#3a2a1a"/>
+  <circle cx="62" cy="88" r="4" fill="#ff9db5" opacity=".7"/>
+  <circle cx="98" cy="88" r="4" fill="#ff9db5" opacity=".7"/>
+  <path d="M74 92 Q80 97 86 92" stroke="#d4516b" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <!-- 珍珠頭飾 -->
+  <circle cx="60" cy="58" r="3" fill="#fff3c4"/>
+  <circle cx="80" cy="50" r="3.4" fill="#fff3c4"/>
+  <circle cx="100" cy="58" r="3" fill="#fff3c4"/>
+</svg>

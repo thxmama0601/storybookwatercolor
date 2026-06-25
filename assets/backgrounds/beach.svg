@@ -1,0 +1,20 @@
+<svg viewBox="0 0 380 170" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="bcg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#cdeeff"/><stop offset="1" stop-color="#9fd9ff"/></linearGradient></defs>
+  <rect width="380" height="170" fill="url(#bcg)"/>
+  <circle cx="320" cy="42" r="20" fill="#ffe27a"/>
+  <g fill="#ffffff" opacity=".8"><ellipse cx="70" cy="36" rx="22" ry="11"/><ellipse cx="92" cy="40" rx="15" ry="8"/></g>
+  <!-- 海 -->
+  <rect y="104" width="380" height="34" fill="#5fb8e8"/>
+  <path d="M0 108 q20 -6 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" stroke="#bfeaff" fill="none" stroke-width="3"/>
+  <!-- 沙灘 -->
+  <rect y="138" width="380" height="32" fill="#f1e0a8"/>
+  <!-- 椰子樹 -->
+  <g><path d="M64 138 q-4 -34 6 -52" stroke="#a9743f" stroke-width="7" fill="none"/>
+     <g fill="#4faa6e"><path d="M70 86 q-26 -6 -38 6 q22 -2 38 2 Z"/><path d="M70 86 q26 -6 38 6 q-22 -2 -38 2 Z"/><path d="M70 86 q-10 -26 -2 -40 q10 20 2 40 Z"/></g>
+     <circle cx="66" cy="90" r="4" fill="#9a6b3f"/><circle cx="76" cy="90" r="4" fill="#9a6b3f"/></g>
+  <!-- 沙堡 -->
+  <g fill="#e6c986"><rect x="200" y="124" width="40" height="16"/><rect x="198" y="118" width="10" height="8"/><rect x="232" y="118" width="10" height="8"/><polygon points="215,118 220,108 225,118"/></g>
+  <!-- 海星 -->
+  <polygon points="300,130 303,138 311,138 305,143 307,151 300,146 293,151 295,143 289,138 297,138" fill="#ff9a5c"/>
+</svg>
