@@ -348,9 +348,9 @@
     </div>
     <div class="row">
       <span class="lbl">⏩ 速度</span>
-      <span class="chip" data-rate="0.75" onclick="setRate(this,0.75)">🐢 慢慢</span>
-      <span class="chip sel" data-rate="0.9" onclick="setRate(this,0.9)">🚶 剛好</span>
-      <span class="chip" data-rate="1.1" onclick="setRate(this,1.1)">🐇 快快</span>
+      <span class="chip" data-rate="0.6" onclick="setRate(this,0.6)">🐢 慢慢</span>
+      <span class="chip sel" data-rate="0.75" onclick="setRate(this,0.75)">🚶 剛好</span>
+      <span class="chip" data-rate="1.0" onclick="setRate(this,1.0)">🐇 快快</span>
     </div>
     <div class="row" style="flex-wrap:wrap;gap:6px;margin-top:4px;">
       <span class="lbl">🔑 AI語音</span>
@@ -1268,7 +1268,7 @@ const _unlockAudio=(function(){
 
 /* =================== 語音 + 卡拉OK 反白 =================== */
 const synth=window.speechSynthesis;
-let voices=[], voiceList=[], chosenVoice=null, rate=0.9, _hasNeuralVoice=false;
+let voices=[], voiceList=[], chosenVoice=null, rate=0.75, _hasNeuralVoice=false;
 // 只保留：國語（台灣）、English（普通話／大陸語音一律排除）
 function voiceCat(v){
   const s=v.lang+' '+v.name;
