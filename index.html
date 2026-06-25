@@ -1464,7 +1464,7 @@ function needsFallback(){
 /* ---------- Google Translate TTS 備援（所有瀏覽器都能播 <audio>）---------- */
 function gTtsUrl(text, lang){
   const tl=lang==='en'?'en':'zh-TW';
-  return 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl='+tl+'&q='+encodeURIComponent(text);
+  return 'https://translate.google.com/translate_tts?ie=UTF-8&client=gtx&tl='+tl+'&q='+encodeURIComponent(text);
 }
 // 重用同一個 Audio 元素（手機上比每次 new Audio() 更穩定，能延續手勢授權鏈）
 const _sharedAudio=(function(){
