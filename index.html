@@ -1260,6 +1260,8 @@ function voiceCat(v){
   const s=v.lang+' '+v.name;
   // 明確排除大陸普通話
   if(/zh[-_]?CN|zh[-_]?Hans|cmn|Xiaoxiao|Yunyang|Yunxi|Huihui|Kangkang|Yaoyao|China|Mandarin/i.test(s)) return null;
+  // 明確排除香港粵語
+  if(/zh[-_]?HK|Cantonese|粵語|廣東|HiuGaai|HiuMaan|WanLung|Hong.?Kong/i.test(s)) return null;
   // 台灣國語
   if(/zh[-_]?TW|zh[-_]?Hant|Taiwan|Yating|Hanhan|Zhiwei|HsiaoChen|HsiaoYu|Meijia/i.test(s)) return 'tw';
   // 英文
@@ -1301,7 +1303,7 @@ function loadVoices(){
   voiceList.sort((a,b)=> CAT_ORDER[a.c]-CAT_ORDER[b.c] || voiceScore(b.v)-voiceScore(a.v));
   // 偵測曉臻／曉雨等 Neural 擬真語音（Edge 瀏覽器內建）
   const neuralTw=voiceList.find(x=>x.c==='tw' && /HsiaoChen|HsiaoYu|曉臻|曉雨/i.test(x.v.name) && x.nat)
-    || voiceList.find(x=>x.c==='tw' && x.nat);
+    || voiceList.find(x=>x.c==='tw' && x.nat && /zh[-_]?TW|Taiwan/i.test(x.v.lang+' '+x.v.name));
   _hasNeuralVoice=!!neuralTw;
   const hint=document.getElementById('voiceHint');
   if(neuralTw){
