@@ -351,13 +351,25 @@
       <span class="chip sel" data-rate="0.9" onclick="setRate(this,0.9)">🚶 剛好</span>
       <span class="chip" data-rate="1.1" onclick="setRate(this,1.1)">🐇 快快</span>
     </div>
+    <div class="row" style="flex-wrap:wrap;gap:6px;margin-top:4px;">
+      <span class="lbl">🔑 AI語音</span>
+      <input type="password" id="azureKey" placeholder="貼上 Azure 金鑰" style="flex:1;min-width:100px;padding:7px 10px;border-radius:10px;border:2px solid var(--line);font-size:13px;background:var(--cream);font-family:inherit;">
+      <select id="azureRegion" style="padding:7px 8px;border-radius:10px;border:2px solid var(--line);font-size:13px;background:var(--cream);font-family:inherit;">
+        <option value="eastasia">東亞</option>
+        <option value="southeastasia">東南亞</option>
+        <option value="japaneast">日本東</option>
+        <option value="eastus">美東</option>
+        <option value="westeurope">西歐</option>
+      </select>
+      <button onclick="saveAzure()" style="padding:7px 14px;border-radius:10px;border:none;background:linear-gradient(90deg,#3ddc84,#23b56a);color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">💾 儲存</button>
+    </div>
+    <div id="azureStatus" style="font-size:12px;color:#888;margin:4px 0 0 80px;display:none;"></div>
     <div class="playrow">
       <button class="big save" onclick="saveStory()">⭐ 收藏</button>
       <button class="big save" style="background:linear-gradient(90deg,#9b8cff,#7c6cff)" onclick="window.print()">🖨 列印</button>
     </div>
     <div class="warn" id="ttsWarn">😅 這個瀏覽器好像沒有中文／英文語音，建議用 Chrome 或 Edge 打開喔！</div>
     <div class="hint" id="voiceHint">唸到哪個字，那個字就會變成紅色～跟著一起唸吧！（第一次按可能要等一下下）</div>
-    <button onclick="(function(){var v=speechSynthesis.getVoices();var t=v.filter(function(x){return/zh/i.test(x.lang)}).map(function(x){return x.name+' | '+x.lang}).join('\n');alert(t||'（沒有偵測到中文語音）')})()" style="margin-top:8px;padding:8px 16px;border-radius:12px;border:2px solid #ccc;background:#fff;font-size:13px;cursor:pointer;">🔍 診斷語音（點我看結果）</button>
   </div>
 
   <!-- 我的故事書 -->
@@ -1383,10 +1395,63 @@ function startKeepAlive(){
 }
 function stopKeepAlive(){ if(iosKeepAlive){ clearInterval(iosKeepAlive); iosKeepAlive=null; } }
 
+/* =================== Azure 語音服務（曉臻 AI 語音）=================== */
+function getAzureKey(){ return localStorage.getItem('azureKey')||''; }
+function getAzureRegion(){ return localStorage.getItem('azureRegion')||'eastasia'; }
+function isAzureReady(){ return !!getAzureKey(); }
+function saveAzure(){
+  const key=document.getElementById('azureKey').value.trim();
+  const region=document.getElementById('azureRegion').value;
+  if(key){ localStorage.setItem('azureKey',key); }else{ localStorage.removeItem('azureKey'); }
+  localStorage.setItem('azureRegion',region);
+  _updateAzureUI();
+  if(key){
+    const st=document.getElementById('azureStatus');
+    st.textContent='⏳ 測試中…'; st.style.display='block'; st.style.color='#888';
+    _azureFetch('測試語音',0.9,'zh').then(()=>{
+      st.textContent='✅ 連線成功！已啟用曉臻 AI 語音'; st.style.color='#23b56a';
+    }).catch(()=>{
+      st.textContent='❌ 金鑰或區域不正確，請重新確認'; st.style.color='#d4516b';
+      localStorage.removeItem('azureKey'); _updateAzureUI();
+    });
+  }
+}
+function _updateAzureUI(){
+  const s=document.getElementById('voiceSel');
+  const hint=document.getElementById('voiceHint');
+  if(isAzureReady()){
+    s.innerHTML='<option>✨ 曉臻 HsiaoChen（Azure AI 語音）</option>';
+    if(hint) hint.innerHTML='唸到哪個字，那個字就會變成紅色～跟著一起唸吧！<br>✨ 已啟用 <b>Azure 曉臻擬真語音</b>，最自然的說故事聲音！';
+  }else{
+    loadVoices();
+  }
+}
+function _azureFetch(text, r, lang){
+  const key=getAzureKey(), region=getAzureRegion();
+  const voice=lang==='en'?'en-US-AvaMultilingualNeural':'zh-TW-HsiaoChenNeural';
+  const xmlLang=lang==='en'?'en-US':'zh-TW';
+  const esc=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const ssml=`<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${xmlLang}"><voice name="${voice}"><prosody rate="${r}">${esc}</prosody></voice></speak>`;
+  return fetch('https://'+region+'.tts.speech.microsoft.com/cognitiveservices/v1',{
+    method:'POST',
+    headers:{'Ocp-Apim-Subscription-Key':key,'Content-Type':'application/ssml+xml','X-Microsoft-OutputFormat':'audio-16khz-128kbitrate-mono-mp3'},
+    body:ssml,
+  }).then(r=>{ if(!r.ok) throw new Error(r.status); return r.blob(); })
+    .then(b=>URL.createObjectURL(b));
+}
+(function _initAzureUI(){
+  const k=document.getElementById('azureKey'), r=document.getElementById('azureRegion');
+  if(k) k.value=getAzureKey();
+  if(r) r.value=getAzureRegion();
+  _updateAzureUI();
+})();
+
 /* ---------- 判斷是否需要備援語音 ---------- */
 let fallbackAudio=null, speakAborted=false;
 function needsFallback(){
   if(!synth) return true;
+  // Azure 語音走 Audio 路徑（與 Google TTS 相同）
+  if(isAzureReady()) return true;
   // WebView（LINE/FB/IG）：Google TTS 幾乎一定被擋，直接用原生 speechSynthesis
   if(_isMobile && isInApp()) return false;
   // Edge 瀏覽器有曉臻等 Neural 擬真語音 → 用原生 speechSynthesis（音質最好）
@@ -1420,10 +1485,11 @@ function _speakFallback(){
     const text=readSeq[i], base=sentenceStart[i], idx=i, len=text.length;
     wrappers.forEach(w=>w.classList.remove('active'));
     wrappers[idx]&&wrappers[idx].classList.add('active');
-    audio.playbackRate=rate;
+    const _useAzure=isAzureReady();
+    audio.playbackRate=_useAzure?1:rate;
     let startT=0, shownIdx=-1;
     const msBase=readLang==='en'?70:240;
-    let msPerChar=msBase/(rate||1);
+    let msPerChar=_useAzure?msBase:msBase/(rate||1);
     let resolved=false, synthTried=false;
     function advance(){
       if(resolved) return; resolved=true;
@@ -1464,19 +1530,46 @@ function _speakFallback(){
     audio.onplay=()=>{
       startT=0; shownIdx=-1; place(0);
       cancelAnimationFrame(rafId); rafId=requestAnimationFrame(tick);
-      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len/(rate||1);
+      const rd=_useAzure?1:(rate||1);
+      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len/rd;
     };
     audio.onloadedmetadata=()=>{
-      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len/(rate||1);
+      const rd=_useAzure?1:(rate||1);
+      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len/rd;
     };
     audio.onended=advance;
-    audio.onerror=()=>{ trySynth(); };
-    audio.src=gTtsUrl(text, readLang);
-    audio.load();
-    audio.play().catch(()=>{
-      // play() 被瀏覽器擋住 → 嘗試原生語音合成
-      trySynth();
-    });
+    audio.onerror=()=>{
+      if(_useAzure){
+        // Azure 失敗 → 改用 Google TTS
+        audio.src=gTtsUrl(text, readLang);
+        audio.playbackRate=rate;
+        audio.load();
+        audio.play().catch(()=>{ trySynth(); });
+      }else{ trySynth(); }
+    };
+    if(_useAzure){
+      _azureFetch(text, rate, readLang).then(url=>{
+        if(speakAborted) return;
+        audio.src=url;
+        audio.load();
+        audio.play().catch(()=>{
+          audio.src=gTtsUrl(text, readLang);
+          audio.playbackRate=rate;
+          audio.load();
+          audio.play().catch(()=>{ trySynth(); });
+        });
+      }).catch(()=>{
+        if(speakAborted) return;
+        audio.src=gTtsUrl(text, readLang);
+        audio.playbackRate=rate;
+        audio.load();
+        audio.play().catch(()=>{ trySynth(); });
+      });
+    }else{
+      audio.src=gTtsUrl(text, readLang);
+      audio.load();
+      audio.play().catch(()=>{ trySynth(); });
+    }
   })();
 }
 
