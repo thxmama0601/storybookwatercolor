@@ -1297,10 +1297,11 @@ function loadVoices(){
   voices=synth.getVoices()||[];
   voiceList=voices.map((v,i)=>({v,i,c:voiceCat(v),nat:isNatural(v)})).filter(x=>x.c);
   const twNamed=voiceList.filter(x=>x.c==='tw' && /國語|臺灣|台灣/.test(x.v.name));
-  if(twNamed.length) voiceList=voiceList.filter(x=> x.c!=='tw' || twNamed.includes(x));
+  if(twNamed.length) voiceList=voiceList.filter(x=> x.c!=='tw' || twNamed.includes(x) || x.nat);
   voiceList.sort((a,b)=> CAT_ORDER[a.c]-CAT_ORDER[b.c] || voiceScore(b.v)-voiceScore(a.v));
   // 偵測曉臻／曉雨等 Neural 擬真語音（Edge 瀏覽器內建）
-  const neuralTw=voiceList.find(x=>x.c==='tw' && /HsiaoChen|HsiaoYu|曉臻|曉雨/i.test(x.v.name) && x.nat);
+  const neuralTw=voiceList.find(x=>x.c==='tw' && /HsiaoChen|HsiaoYu|曉臻|曉雨/i.test(x.v.name) && x.nat)
+    || voiceList.find(x=>x.c==='tw' && x.nat);
   _hasNeuralVoice=!!neuralTw;
   const hint=document.getElementById('voiceHint');
   if(neuralTw){
@@ -1329,6 +1330,13 @@ function pickVoiceForLang(lang){
 if(synth){
   loadVoices();
   synth.onvoiceschanged=loadVoices;
+  // Edge 語音清單有時載入較慢，輪詢重試確保偵測到 Neural 語音
+  let _vTries=0;
+  const _vTimer=setInterval(()=>{
+    const v=synth.getVoices()||[];
+    if(v.length){ loadVoices(); if(_hasNeuralVoice || ++_vTries>30) clearInterval(_vTimer); }
+    else if(++_vTries>30) clearInterval(_vTimer);
+  },300);
 }else{
   const s=document.getElementById('voiceSel');
   s.innerHTML='<option>🔊 溫暖說故事語音（自動）</option>';
