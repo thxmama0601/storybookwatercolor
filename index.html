@@ -737,51 +737,215 @@ const splitSentences = t => (t.match(/[^。！？]+[。！？]?/g) || [t]).map(s
 const splitEn = t => (t.match(/[^.!?]+[.!?]+["']?|\S[^.!?]*$/g) || [t]).map(s=>s.trim()).filter(Boolean);
 const joinEn = a => a.length<=1 ? (a[0]||'') : a.slice(0,-1).join(', ')+' and '+a[a.length-1];
 
+/* ====== 起承轉合素材池（大幅增加隨機性）====== */
+
+const TWISTS = {
+  zh:[
+    '就在快要放棄的時候，一陣神奇的風吹來了！',
+    '突然，天空閃過一道亮光，一切都不一樣了。',
+    '沒想到，一個小小的意外，反而帶來了驚喜。',
+    '正當大家以為沒辦法了，奇蹟悄悄發生了。',
+    '可是就在這個時候，事情出現了意想不到的變化……',
+    '忽然間，他發現了一個從來沒注意到的秘密！',
+    '一轉眼，一個新的挑戰出現了——比之前更難！',
+    '就在最困難的時候，心裡的一句話給了他力量。',
+    '一陣風吹散了迷霧，露出了一條從沒看過的路。',
+    '他停下腳步，突然聽見了一個很小很小的聲音……',
+    '地上忽然發出柔柔的光，照亮了前方的路。',
+    '就在大家不知所措的時候，天空飄下一封神祕的信。',
+  ],
+  en:[
+    'Just when it seemed hopeless, a magical wind blew in!',
+    'Suddenly, a flash of light streaked across the sky, and everything changed.',
+    'Unexpectedly, a little accident turned into a wonderful surprise.',
+    'Just when everyone thought it was impossible, a tiny miracle happened.',
+    'But right at that moment, something no one expected changed everything…',
+    'All of a sudden, a secret that had been hidden all along was discovered!',
+    'In the blink of an eye, a new and even harder challenge appeared!',
+    'At the hardest moment, a quiet voice inside gave new strength.',
+    'A gust of wind cleared the mist, revealing a path never seen before.',
+    'Stopping still, the tiniest little sound was heard…',
+    'The ground began to glow softly, lighting the way ahead.',
+    'Just when no one knew what to do, a mysterious letter floated down from the sky.',
+  ],
+};
+
+const DEVELOP = {
+  zh:[
+    '心裡越想越著急，可是又不知道該怎麼辦。',
+    '他試了一次，又試了一次，但還是沒有成功。',
+    '雖然有點害怕，他還是決定繼續往前走。',
+    '他蹲下來想了想，一定有什麼辦法才對。',
+    '眼淚差點掉下來，可是他告訴自己要堅強。',
+    '他深深吸了一口氣，鼓起全身的勇氣。',
+    '他回想起家人說過的話，心裡稍微安定了一點。',
+    '他看看四周，決定不能就這樣算了。',
+    '他握緊拳頭，在心裡默默許了一個願望。',
+    '閉上眼睛數了三下，再睜開的時候覺得自己變勇敢了一點。',
+  ],
+  en:[
+    'Worry grew bigger and bigger, but what to do?',
+    'Tried once, tried twice, but still no luck.',
+    'A little scared, but the journey had to go on.',
+    'Crouching down to think — there had to be a way.',
+    'Tears almost fell, but a brave voice inside said, "Be strong."',
+    'Taking a big, deep breath, gathering up every ounce of courage.',
+    'Remembering what the family always said, the heart settled just a little.',
+    'Looking all around and deciding — this was not over yet.',
+    'Clenching two little fists, a silent wish was made in the heart.',
+    'Closing both eyes and counting to three — opening them again felt a tiny bit braver.',
+  ],
+};
+
+const CONNECTORS = {
+  zh:[
+    '走著走著','繼續往前走的時候','轉過一個彎','穿過一片花叢',
+    '爬上一個小山丘','經過一棵大大的樹','來到一條小溪邊','走到一個岔路口',
+    '路過一座小橋','停下來休息的時候','聽到一個聲音，找過去一看',
+    '在一棵老樹下','跨過一道小水窪','繞過一塊大石頭','走進一片陽光裡',
+  ],
+  en:[
+    'Walking along','Going a little further','Around a bend','Through a patch of flowers',
+    'Up a little hill','Past a great big tree','By a little stream','At a fork in the road',
+    'Across a small bridge','While resting a moment','Following a tiny sound',
+    'Under an old tree','Stepping over a puddle','Around a big rock','Into a patch of sunlight',
+  ],
+};
+
+const FEELINGS = {
+  zh:[
+    '心裡暖暖的，又有了一點力量。',
+    '覺得自己好像又長大了一點點。',
+    '嘴角不知不覺地往上翹了起來。',
+    '雖然還是有點緊張，但已經不那麼害怕了。',
+    '小小的胸口，裝進了大大的勇氣。',
+    '他知道，自己已經和剛才不一樣了。',
+    '眼睛亮了起來，好像找到了方向。',
+    '心跳加速，不是因為害怕，而是因為期待。',
+    '他笑了，因為他知道自己不是一個人。',
+    '腳步變得輕快了，像是踩在雲朵上面。',
+  ],
+  en:[
+    'A warm feeling grew inside, with a little more strength.',
+    'It felt like growing up just a tiny bit more.',
+    'Without noticing, the corners of the mouth turned up into a smile.',
+    'Still a little nervous, but not nearly so scared anymore.',
+    'A small chest filled up with big, big courage.',
+    'Something had changed — this was not the same as before.',
+    'Eyes lit up, as if a direction had been found at last.',
+    'The heart beat faster — not from fear, but from excitement.',
+    'A smile came, because being alone was over now.',
+    'Footsteps grew light and bouncy, like walking on clouds.',
+  ],
+};
+
+const FRIEND_MEETS = {
+  zh:[
+    (fn,cn,give)=>`${fn}出現了，關心地問：「你怎麼了呀？」${cn}把煩惱說了出來，${fn}就${give}。`,
+    (fn,cn,give)=>`${fn}探出頭來，歪著腦袋問：「需要幫忙嗎？」${cn}點點頭，${fn}馬上${give}。`,
+    (fn,cn,give)=>`${fn}跑了過來，拍拍${cn}的肩膀說：「別擔心！」聽完之後，${fn}${give}。`,
+    (fn,cn,give)=>`${fn}笑著走過來：「我來幫你！」說完就${give}。`,
+    (fn,cn,give)=>`${fn}蹦蹦跳跳地出現，一看到${cn}就說：「交給我！」${fn}${give}。`,
+    (fn,cn,give)=>`遇見了${fn}，${fn}聽了${cn}的煩惱之後，二話不說就${give}。`,
+    (fn,cn,give)=>`${fn}從旁邊冒了出來，眨眨眼睛說：「我有辦法喔！」${fn}${give}。`,
+    (fn,cn,give)=>`${fn}剛好路過，看見${cn}的表情就停下來問：「嘿，怎麼了？」接著就${give}。`,
+  ],
+  en:[
+    (fn,cn,give)=>`${fn} appeared and asked kindly, "What's wrong?" ${cn} shared the worry, and ${fn} ${give}.`,
+    (fn,cn,give)=>`${fn} peeked out with a tilted head: "Need help?" ${cn} nodded, and right away ${fn} ${give}.`,
+    (fn,cn,give)=>`${fn} came running over with a pat on the shoulder: "Don't worry!" After hearing everything, ${fn} ${give}.`,
+    (fn,cn,give)=>`${fn} walked up with a smile: "Let me help!" And then ${fn} ${give}.`,
+    (fn,cn,give)=>`${fn} bounced over, and seeing ${cn}, exclaimed, "Leave it to me!" Then ${fn} ${give}.`,
+    (fn,cn,give)=>`There was ${fn}! After hearing the story, without a second thought, ${fn} ${give}.`,
+    (fn,cn,give)=>`${fn} popped up from nearby, winked, and said, "I have an idea!" Then ${fn} ${give}.`,
+    (fn,cn,give)=>`${fn} happened to pass by and stopped: "Hey, what happened?" And then ${fn} ${give}.`,
+  ],
+};
+
+const RESOLVES = {
+  zh:[
+    (cn,action,say)=>`有了大家的陪伴，${cn}不再害怕了。他${action}，開心地大聲說：${say}`,
+    (cn,action,say)=>`朋友們的力量匯聚在一起，${cn}深吸一口氣，${action}，大聲喊出：${say}`,
+    (cn,action,say)=>`這一刻，${cn}覺得自己充滿了力量。他${action}，對著天空說：${say}`,
+    (cn,action,say)=>`想起朋友們的鼓勵，${cn}挺起了胸膛。他${action}，笑著說：${say}`,
+    (cn,action,say)=>`${cn}把朋友們教他的全都想了一遍，然後${action}，眼睛亮亮地說：${say}`,
+    (cn,action,say)=>`所有的勇氣在心裡燒了起來，${cn}${action}，忍不住高喊：${say}`,
+  ],
+  en:[
+    (cn,action,say)=>`With all these friends along, ${cn} wasn't afraid anymore. ${cn} ${action}, and happily called out: ${say}`,
+    (cn,action,say)=>`Everyone's strength came together. ${cn} took a deep breath, ${action}, and cheered: ${say}`,
+    (cn,action,say)=>`In that moment, ${cn} felt full of power. ${cn} ${action}, and said to the sky: ${say}`,
+    (cn,action,say)=>`Remembering every friend's encouragement, ${cn} stood tall, ${action}, and said with a smile: ${say}`,
+    (cn,action,say)=>`${cn} thought over everything the friends had taught, then ${action}, and said with shining eyes: ${say}`,
+    (cn,action,say)=>`All the courage flared up inside. ${cn} ${action}, and couldn't help but shout: ${say}`,
+  ],
+};
+
 /* 先把所有隨機選擇定下來，之後中文／英文版都用同一份「劇本」來產出 */
 function buildPlan(){
   const arc=ARC[sel.attr], l=LOC[sel.loc];
+  const numFriends = 2 + Math.floor(Math.random()*3); // 2~4 位朋友
   return {
     char:sel.char, attr:sel.attr, loc:sel.loc, act:sel.act,
     openI:pick(OPENS.zh), whereI:pick(l.where), senseI:pick(l.sense), openerI:pick(ACT[sel.act].opener),
     thingI:pick(l.thing), problemI:pick(arc.problem), tryI:pick(arc.try),
+    developI:pick(DEVELOP.zh),
+    twistI:pick(TWISTS.zh),
+    feelingI:pick(FEELINGS.zh),
+    resolveI:pick(RESOLVES.zh),
     actionI:pick(arc.action), sayI:pick(arc.say), closeI:pick(arc.close),
     moralI:pick(arc.moral), endI:pick(ENDINGS.zh),
-    friends:shuffle(FRIENDS.map((_,i)=>i)).slice(0,3),  // 沿路遇到 3 位好朋友
+    friends:shuffle(FRIENDS.map((_,i)=>i)).slice(0, numFriends),
+    connectorIs:shuffle(CONNECTORS.zh.map((_,i)=>i)).slice(0, numFriends),
+    friendMeetIs:Array.from({length:numFriends}, ()=>pick(FRIEND_MEETS.zh)),
   };
 }
 
-// 依照劇本 plan，產出指定語言（zh / en）的故事
 function renderStory(plan, lang){
   const c=CHAR[plan.char], l=LOC[plan.loc], a=ACT[plan.act], arc=ARC[plan.attr];
   const friends=plan.friends.map(i=>FRIENDS[i]);
   const P=[];
   if(lang==='en'){
     const name=c.nameEn, who=c.shortEn, where=l.whereEn[plan.whereI];
+    // 【起】開場
     P.push(OPENS.en[plan.openI](name, c.hintEn, where));
     P.push(`${l.senseEn[plan.senseI]}. That day, ${who} ${a.clauseEn}. ${a.openerEn[plan.openerI]}`);
+    // 【承】發展
     P.push(`Just then, ${l.thingEn[plan.thingI]} appeared. It turned out that ${who} ${arc.problemEn[plan.problemI]}.`);
-    P.push(`${who} ${arc.tryEn[plan.tryI]}, feeling a little worried, and set off to find some friends to help.`);
-    const steps=['Walking and walking','A little further along','After a few more steps'];
+    P.push(`${who} ${arc.tryEn[plan.tryI]}. ${DEVELOP.en[plan.developI]}`);
     friends.forEach((f,i)=>{
-      P.push(`${steps[i]}, ${f.nameEn} appeared and asked kindly, "What's wrong?" ${who} shared the worry, and ${f.nameEn} ${f.giveEn}.`);
+      const conn=CONNECTORS.en[plan.connectorIs[i]];
+      const meet=FRIEND_MEETS.en[plan.friendMeetIs[i]];
+      P.push(`${conn}, ${meet(f.nameEn, who, f.giveEn)}`);
     });
-    P.push(`With all these friends along, ${who} wasn't afraid anymore. ${who} ${arc.actionEn[plan.actionI]}, and happily called out: ${arc.sayEn[plan.sayI]}`);
+    P.push(FEELINGS.en[plan.feelingI]);
+    // 【轉】轉折
+    P.push(TWISTS.en[plan.twistI]);
+    // 【合】結局
+    P.push(RESOLVES.en[plan.resolveI](who, arc.actionEn[plan.actionI], arc.sayEn[plan.sayI]));
     const pals=joinEn(friends.map(f=>f.nameEn));
-    P.push(`${arc.closeEn[plan.closeI]}${ENDINGS.en[plan.endI](who, pals)}`);
+    P.push(`${arc.closeEn[plan.closeI]} ${ENDINGS.en[plan.endI](who, pals)}`);
     return { lang:'en',
       title:`${emojiOf('attr',plan.attr)} ${who}'s ${ATTR_EN[plan.attr]} Adventure`,
       sentences:splitEn(P.join(' ')), moral:arc.moralEn[plan.moralI] };
   } else {
     const name=c.name, where=l.where[plan.whereI];
+    // 【起】開場
     P.push(OPENS.zh[plan.openI](name, c.hint, where));
     P.push(`${l.sense[plan.senseI]}。這一天，${name}${a.clause}，${a.opener[plan.openerI]}`);
+    // 【承】發展
     P.push(`這時候，${l.thing[plan.thingI]}出現了，原來${name}${arc.problem[plan.problemI]}。`);
-    P.push(`${name}${arc.try[plan.tryI]}，心裡有點著急，於是決定去找朋友幫忙。`);
-    const steps=['走著走著','再往前走一點','又走了一小段路'];
+    P.push(`${name}${arc.try[plan.tryI]}。${DEVELOP.zh[plan.developI]}`);
     friends.forEach((f,i)=>{
-      P.push(`${steps[i]}，${f.name}出現了，關心地問：「你怎麼了呀？」${name}把煩惱說了出來，${f.name}就${f.give}。`);
+      const conn=CONNECTORS.zh[plan.connectorIs[i]];
+      const meet=FRIEND_MEETS.zh[plan.friendMeetIs[i]];
+      P.push(`${conn}，${meet(f.name, name, f.give)}`);
     });
-    P.push(`有了大家的陪伴，${name}不再害怕了。他${arc.action[plan.actionI]}，開心地大聲說：${arc.say[plan.sayI]}`);
+    P.push(FEELINGS.zh[plan.feelingI]);
+    // 【轉】轉折
+    P.push(TWISTS.zh[plan.twistI]);
+    // 【合】結局
+    P.push(RESOLVES.zh[plan.resolveI](name, arc.action[plan.actionI], arc.say[plan.sayI]));
     const pals=friends.map(f=>f.name).join('、');
     P.push(`${arc.close[plan.closeI]}${ENDINGS.zh[plan.endI](name, pals)}`);
     return { lang:'zh',
