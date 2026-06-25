@@ -357,6 +357,7 @@
     </div>
     <div class="warn" id="ttsWarn">😅 這個瀏覽器好像沒有中文／英文語音，建議用 Chrome 或 Edge 打開喔！</div>
     <div class="hint" id="voiceHint">唸到哪個字，那個字就會變成紅色～跟著一起唸吧！（第一次按可能要等一下下）</div>
+    <button onclick="(function(){var v=speechSynthesis.getVoices();var t=v.filter(function(x){return/zh/i.test(x.lang)}).map(function(x){return x.name+' | '+x.lang}).join('\n');alert(t||'（沒有偵測到中文語音）')})()" style="margin-top:8px;padding:8px 16px;border-radius:12px;border:2px solid #ccc;background:#fff;font-size:13px;cursor:pointer;">🔍 診斷語音（點我看結果）</button>
   </div>
 
   <!-- 我的故事書 -->
