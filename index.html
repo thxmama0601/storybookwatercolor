@@ -1464,7 +1464,7 @@ function needsFallback(){
 /* ---------- Google Translate TTS 備援（所有瀏覽器都能播 <audio>）---------- */
 function gTtsUrl(text, lang){
   const tl=lang==='en'?'en':'zh-TW';
-  return 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl='+tl+'&q='+encodeURIComponent(text);
+  return 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl='+tl+'&ttsspeed='+rate+'&q='+encodeURIComponent(text);
 }
 // 重用同一個 Audio 元素（手機上比每次 new Audio() 更穩定，能延續手勢授權鏈）
 const _sharedAudio=(function(){
@@ -1487,10 +1487,10 @@ function _speakFallback(){
     wrappers.forEach(w=>w.classList.remove('active'));
     wrappers[idx]&&wrappers[idx].classList.add('active');
     const _useAzure=isAzureReady();
-    audio.playbackRate=_useAzure?1:rate;
+    audio.playbackRate=1;
     let startT=0, shownIdx=-1;
     const msBase=readLang==='en'?70:240;
-    let msPerChar=_useAzure?msBase:msBase/(rate||1);
+    let msPerChar=msBase;
     let resolved=false, synthTried=false;
     function advance(){
       if(resolved) return; resolved=true;
@@ -1531,19 +1531,17 @@ function _speakFallback(){
     audio.onplay=()=>{
       startT=0; shownIdx=-1; place(0);
       cancelAnimationFrame(rafId); rafId=requestAnimationFrame(tick);
-      const rd=_useAzure?1:(rate||1);
-      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len/rd;
+      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len;
     };
     audio.onloadedmetadata=()=>{
-      const rd=_useAzure?1:(rate||1);
-      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len/rd;
+      if(audio.duration&&isFinite(audio.duration)&&len>0) msPerChar=audio.duration*1000/len;
     };
     audio.onended=advance;
     audio.onerror=()=>{
       if(_useAzure){
         // Azure 失敗 → 改用 Google TTS
         audio.src=gTtsUrl(text, readLang);
-        audio.playbackRate=rate;
+        audio.playbackRate=1;
         audio.load();
         audio.play().catch(()=>{ trySynth(); });
       }else{ trySynth(); }
@@ -1555,14 +1553,14 @@ function _speakFallback(){
         audio.load();
         audio.play().catch(()=>{
           audio.src=gTtsUrl(text, readLang);
-          audio.playbackRate=rate;
+          audio.playbackRate=1;
           audio.load();
           audio.play().catch(()=>{ trySynth(); });
         });
       }).catch(()=>{
         if(speakAborted) return;
         audio.src=gTtsUrl(text, readLang);
-        audio.playbackRate=rate;
+        audio.playbackRate=1;
         audio.load();
         audio.play().catch(()=>{ trySynth(); });
       });
