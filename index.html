@@ -1437,8 +1437,9 @@ function _azureFetch(text, r, lang){
   const key=getAzureKey(), region=getAzureRegion();
   const voice=lang==='en'?'en-US-AvaMultilingualNeural':'zh-TW-HsiaoChenNeural';
   const xmlLang=lang==='en'?'en-US':'zh-TW';
+  const style=lang==='en'?'narration-professional':'cheerful';
   const esc=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const ssml=`<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${xmlLang}"><voice name="${voice}"><prosody rate="${r}">${esc}</prosody></voice></speak>`;
+  const ssml=`<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xml:lang="${xmlLang}"><voice name="${voice}"><mstts:express-as style="${style}"><prosody rate="${r}">${esc}</prosody></mstts:express-as></voice></speak>`;
   return fetch('https://'+region+'.tts.speech.microsoft.com/cognitiveservices/v1',{
     method:'POST',
     headers:{'Ocp-Apim-Subscription-Key':key,'Content-Type':'application/ssml+xml','X-Microsoft-OutputFormat':'audio-16khz-128kbitrate-mono-mp3'},
@@ -1457,7 +1458,9 @@ function _azureFetch(text, r, lang){
 let fallbackAudio=null, speakAborted=false;
 function needsFallback(){
   if(!synth) return true;
-  // 所有平台、所有瀏覽器統一用 Google Translate TTS，確保聽起來一致
+  if(isAzureReady()) return true;
+  // 桌機 + 偵測到 Neural 語音（Edge 曉臻 / Chrome Neural）→ 用原生語音合成，不走 Google TTS
+  if(_hasNeuralVoice && !_isMobile) return false;
   return true;
 }
 
